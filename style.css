@@ -405,3 +405,73 @@ body.light-mode .social-icon:hover {
         grid-template-columns: 1fr;
     }
 }
+/* Sonvex Pro Player Styles */
+.upcoming-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px !important;
+    text-align: center;
+}
+
+.player-cover-art {
+    width: 160px;
+    height: 160px;
+    background: #121212 url('cover.jpg') center/cover no-repeat; /* السطر ده بس اللي يتغير */
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.track-name-display { 
+    font-size: 1.4rem; 
+    font-weight: 700; 
+    margin-bottom: 5px; 
+    color: var(--text-primary); /* ده السطر اللي هيخليه يقلب مع المود */
+}
+.track-artist-display { font-size: 0.9rem; color: #7148fc; margin-bottom: 30px; font-weight: 600; }
+
+.progress-box {
+    width: 100%;
+    max-width: 350px;
+    height: 4px;
+    background: rgba(120, 120, 120, 0.2); /* لون رمادي هادي يبان في المودين */
+    border-radius: 2px;
+    cursor: pointer;
+    position: relative;
+}
+
+.progress-bar-fill {
+    width: 0%;
+    height: 100%;
+    background: var(--accent); /* اللبني (Cyan) وهو شغال */
+    border-radius: 2px;
+    box-shadow: 0 0 10px var(--accent); /* إضاءة خفيفة للشريط وهو ماشي */
+}
+
+.time-meta {
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 10px;
+    color: var(--text-secondary); /* هيقلب لونه حسب المود عشان يبان */
+    margin: 8px 0 30px;
+    font-family: monospace;
+}
+
+.main-toggle-btn {
+    width: 55px;
+    height: 55px;
+    background: #fff;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+    color: #000;
+    transition: transform 0.2s ease;
+}
+.main-toggle-btn:hover { transform: scale(1.1); }
