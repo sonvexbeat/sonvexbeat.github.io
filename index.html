@@ -86,28 +86,30 @@
 <div class="music-sections">
     <section class="track-section" id="upcoming" data-aos="fade-down">
         <h2 class="section-title">UPCOMING <span class="section-subtitle">(Exclusive Teaser)</span></h2>
-        
         <div class="track-grid">
-            <div class="glass-card embed-card sc-container" style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; min-height: 320px;">
+            <div class="glass-card embed-card upcoming-container">
+                <div class="player-cover-art"></div>
+                <h3 class="track-name-display">Trateel Al-Sukoon</h3>
+                <p class="track-artist-display">Prod. SB</p>
                 
-                <h3 style="text-align: center; margin-bottom: 25px; letter-spacing: 1px;">
-                    Trateel Al-Sukoon | تَرَاتِيلُ السُّكُونِ
-                </h3>
-                
-                <div style="width: 100%; max-width: 500px; background: rgba(0,0,0,0.2); padding: 12px; border-radius: 50px;">
-                    <audio controls controlsList="nodownload" oncontextmenu="return false;" preload="auto" style="width: 100%; filter: invert(1) hue-rotate(180deg) brightness(1.2); cursor: pointer;">
-                        <source src="teaser.mp3" type="audio/mpeg">
-                        Your browser does not support the audio element.
-                    </audio>
+                <div class="progress-box" id="seek-bar-container">
+                    <div class="progress-bar-fill" id="audio-progress"></div>
+                </div>
+                <div class="time-meta">
+                    <span id="time-current">0:00</span>
+                    <span id="time-total">0:00</span>
                 </div>
 
-                <p style="color: #00e5ff; margin-top: 25px; font-size: 0.85em; text-transform: uppercase; letter-spacing: 3px; font-weight: bold;">
-                    Prod. By Sonvex Beat
-                </p>
+                <button class="main-toggle-btn" id="play-pause-trigger">
+                    <i class="fas fa-play" id="status-icon"></i>
+                </button>
             </div>
         </div>
     </section>
 </div>
+
+<audio id="teaser-track" src="teaser.mp3"></audio>
+
 
 
 
