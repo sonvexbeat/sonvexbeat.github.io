@@ -82,6 +82,79 @@
 
 
 
+<section id="live-radio" class="track-section" data-aos="fade-up" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+    
+    <p id="click-hint" style="font-size: 0.65rem; color: var(--accent); opacity: 0.8; letter-spacing: 2px; margin-bottom: 12px; text-transform: uppercase;">
+        Click anywhere to start the radio
+    </p>
+
+    <div class="glass-card" style="padding: 30px 20px; display: flex; flex-direction: column; align-items: center; gap: 15px; width: 90%; max-width: 900px;">
+        
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="width: 8px; height: 8px; background: #ff0000; border-radius: 50%; box-shadow: 0 0 10px #ff0000; animation: pulse 1s infinite;"></span>
+            <span style="font-size: 0.75rem; font-weight: 800; letter-spacing: 3px; color: var(--accent);">SONVEX LIVE RADIO</span>
+        </div>
+        
+        <h3 id="radio-track-title" class="track-name-display" style="margin: 0; font-size: 1.4rem; letter-spacing: 1px;">Loading...</h3>
+        
+        <div class="progress-box" style="width: 100%; max-width: 500px; height: 2px; background: rgba(120, 120, 120, 0.2);">
+            <div id="radio-progress" class="progress-bar-fill" style="width: 0%; background: var(--accent);"></div>
+        </div>
+
+        <div class="volume-control" style="margin-top: 10px; display: flex; align-items: center; gap: 15px; opacity: 0.7;">
+            <i class="fas fa-volume-down" style="font-size: 0.8rem; color: var(--accent);"></i>
+            <input type="range" id="volume-slider" min="0" max="1" step="0.01" value="0.5" 
+                   style="width: 120px; cursor: pointer; accent-color: var(--accent);">
+            <i class="fas fa-volume-up" style="font-size: 0.8rem; color: var(--accent);"></i>
+        </div>
+    </div>
+
+    <div id="radio-source" style="display: none;">
+        <div class="radio-item" data-src="tracks/track1.mp3" data-title="Bila Sakan"></div>
+        <div class="radio-item" data-src="tracks/track2.mp3" data-title="Arak Nabdan"></div>
+        <div class="radio-item" data-src="tracks/track3.mp3" data-title="Ana Al-Gharib"></div>
+        <div class="radio-item" data-src="tracks/track4.mp3" data-title="Rabee Qalbi"></div>
+        <div class="radio-item" data-src="tracks/track5.mp3" data-title="Ana Al-Mossafer"></div>
+        <div class="radio-item" data-src="tracks/track6.mp3" data-title="Al-Attlal"></div>
+        <div class="radio-item" data-src="tracks/track7.mp3" data-title="Al-Samtt Sultan"></div>
+        <div class="radio-item" data-src="tracks/track8.mp3" data-title="Hekaya Isheq"></div>
+        <div class="radio-item" data-src="tracks/track9.mp3" data-title="Sarrab"></div>
+        <div class="radio-item" data-src="tracks/track10.mp3" data-title="Ghadwto Ghariban"></div>
+        <div class="radio-item" data-src="tracks/track11.mp3" data-title="Na-Na Yah"></div>
+        <div class="radio-item" data-src="tracks/track12.mp3" data-title="Ana Al-Ghariq"></div>
+        <div class="radio-item" data-src="tracks/track13.mp3" data-title="Ganaza Al-Ishq"></div>
+        <div class="radio-item" data-src="tracks/track14.mp3" data-title="Anin Al-Ghorba"></div>
+        <div class="radio-item" data-src="tracks/track15.mp3" data-title="Ana Al-Taaeha"></div>
+        <div class="radio-item" data-src="tracks/track16.mp3" data-title="Salaman"></div>
+        <div class="radio-item" data-src="tracks/track17.mp3" data-title="Still Here"></div>
+        <div class="radio-item" data-src="tracks/track18.mp3" data-title="La Gawab"></div>
+        <div class="radio-item" data-src="tracks/track19.mp3" data-title="Al-Eassar"></div>
+        <div class="radio-item" data-src="tracks/track20.mp3" data-title="Areft Al-Hawa"></div>
+        <div class="radio-item" data-src="tracks/track21.mp3" data-title="Al-Ahl El-Qodama"></div>
+        <div class="radio-item" data-src="tracks/track22.mp3" data-title="Soganaa"></div>
+        <div class="radio-item" data-src="tracks/track23.mp3" data-title="Rahalat"></div>
+        <div class="radio-item" data-src="tracks/track24.mp3" data-title="Mat Al-Kalam"></div>
+        <div class="radio-item" data-src="tracks/track25.mp3" data-title="Qettar Al-Omr"></div>
+        <div class="radio-item" data-src="tracks/track26.mp3" data-title="Lammet Zaman"></div>
+        <div class="radio-item" data-src="tracks/track27.mp3" data-title="Ya Mn Hawahu"></div>
+        <div class="radio-item" data-src="tracks/track28.mp3" data-title="Rafiq Al-Darb"></div>
+        <div class="radio-item" data-src="tracks/track29.mp3" data-title="Ahebak"></div>
+        <div class="radio-item" data-src="tracks/track30.mp3" data-title="Hetam Al-Gharam"></div>
+
+
+
+    </div>
+
+    <audio id="radio-audio-player" preload="auto"></audio>
+</section>
+
+
+
+
+
+
+
+        
 
 <div class="music-sections">
     <section class="track-section" id="upcoming" data-aos="fade-down">
