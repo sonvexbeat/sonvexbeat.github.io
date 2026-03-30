@@ -63,4 +63,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
         visualizerBg.appendChild(bar);
     }
+
+
+// Pro Player Functionality
+    const teaserAudio = document.getElementById('teaser-track');
+    const playBtn = document.getElementById('play-pause-trigger');
+    const playIcon = document.getElementById('status-icon');
+    const progFill = document.getElementById('audio-progress');
+    const seekContainer = document.getElementById('seek-bar-container');
+
+    if (playBtn && teaserAudio) {
+        playBtn.addEventListener('click', () => {
+            if (teaserAudio.paused) {
+                teaserAudio.play();
+                playIcon.classList.replace('fa-play', 'fa-pause');
+            } else {
+                teaserAudio.pause();
+                playIcon.classList.replace('fa-pause', 'fa-play');
+            }
+        });
+
+        teaserAudio.addEventListener('timeupdate', () => {
+            const percent = (teaserAudio.currentTime / teaserAudio.duration) * 100;
+            if (progFill) progFill.style.width = percent + '%';
+            const currTime = document.getElementById('time-current');
+            if (currTime) currTime.innerText = formatTime(teaserAudio.currentTime);
+        });
+
+        teaserAudio.addEventListener('loadedmetadata', () => {
+            const totalTime = document.getElementById('time-total');
+            if (totalTime) totalTime.innerText = formatTime(teaserAudio.duration);
+        });
+
+        seekContainer?.addEventListener('click', (e) => {
+            const width = seekContainer.clientWidth;
+            teaserAudio.currentTime = (e.offsetX / width) * teaserAudio.duration;
+        });
+    }
+
+    function formatTime(time) {
+        let min = Math.floor(time / 60);
+        let sec = Math.floor(time % 60);
+        return min + ":" + (sec < 10 ? '0' + sec : sec);
+    }
+
+
 });
