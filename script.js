@@ -55,41 +55,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. Sonvex Radio Logic ---
+    // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
     const radioItems = document.querySelectorAll('.radio-item');
     const radioPlaylist = Array.from(radioItems).map(item => ({
         title: item.getAttribute('data-title'),
         file: item.getAttribute('data-src')
     }));
 
-    let radioIdx = Math.floor(Math.random() * radioPlaylist.length);
     const rAudio = document.getElementById('radio-audio-player');
     const rTitle = document.getElementById('radio-track-title');
     const rProg = document.getElementById('radio-progress');
     const volumeSlider = document.getElementById('volume-slider');
 
-    function playRadio(idx) {
+    let shuffledQueue = [];
+    let currentTrackIndex = 0;
+
+    // دالة خلط المصفوفة
+    function shuffleArray(array) {
+        let newArr = [...array];
+        for (let i = newArr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+        }
+        return newArr;
+    }
+
+    function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
-        const track = radioPlaylist[idx];
+
+        // إذا كانت القائمة فارغة أو انتهت، قم بخلطها من جديد
+        if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
+            shuffledQueue = shuffleArray(radioPlaylist);
+            currentTrackIndex = 0;
+        }
+
+        const track = shuffledQueue[currentTrackIndex];
         rAudio.src = track.file;
         rTitle.innerText = track.title;
-        
-        // الراديو يلتزم بقيمة السلايدر
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
         
-        rAudio.play().catch(() => {
-            document.addEventListener('click', () => {
-                if (rAudio.paused && (!teaserAudio || teaserAudio.paused)) {
-                    rAudio.play();
-                }
-            }, { once: true });
-        });
+        rAudio.play().catch(err => console.log("Playback blocked by browser"));
     }
 
     if (rAudio) {
         rAudio.addEventListener('ended', () => {
-            radioIdx = (radioIdx + 1) % radioPlaylist.length;
-            playRadio(radioIdx);
+            currentTrackIndex++;
+            playRadio();
         });
 
         rAudio.addEventListener('timeupdate', () => {
@@ -109,10 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
         playBtn.addEventListener('click', () => {
             if (teaserAudio.paused) {
                 if (rAudio) rAudio.pause(); 
-                
-                // التعديل: التراكات الأساسية تشتغل بصوت كامل دايماً (0.9 مريح جداً)
                 teaserAudio.volume = 0.9; 
-                
                 teaserAudio.play();
                 playIcon?.classList.replace('fa-play', 'fa-pause');
             } else {
@@ -152,8 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return min + ":" + (sec < 10 ? '0' + sec : sec);
     }
 
- playRadio(radioIdx);
-
     // --- 6. التحكم في مستوى الصوت (للراديو فقط) ---
     if (volumeSlider) {
         volumeSlider.addEventListener('input', (e) => {
@@ -164,7 +170,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
     document.addEventListener('click', () => {
-        // التأكد إن الراديو واقف "وكمان" البرومو مش شغال عشان الأصوات ما تدخلش في بعض
+        // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
+        if (rAudio && !rAudio.src) {
+            playRadio();
+        }
+
+        // 2. التأكد إن الراديو واقف والبرومو مش شغال، فنشغله
         if (rAudio && rAudio.paused && (!teaserAudio || teaserAudio.paused)) {
             rAudio.play().catch(err => console.log("Playback blocked"));
         }
@@ -172,9 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // إخفاء الجملة التوضيحية بنعومة
         const hint = document.getElementById('click-hint');
         if(hint) {
-            hint.style.transition = 'opacity 0.5s ease'; // إضافة تأثير النعومة
+            hint.style.transition = 'opacity 0.5s ease';
             hint.style.opacity = '0';
-            // مسح العنصر تماماً من الصفحة بعد ما يختفي عشان ما ياخدش مساحة
             setTimeout(() => { hint.style.display = 'none'; }, 500);
         }
     }, { once: true });
