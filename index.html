@@ -498,9 +498,9 @@
                 </a>
             </div>
             <div class="contact-email">
-                <a href="mailto:sonvexbeat@proton.me" class="glass-btn email-btn">
-                    <i class="fas fa-envelope"></i> sonvexbeat@proton.me
-                </a>
+                <a href="mailto:sonvexbeat@proton.me" class="glass-btn email-btn" id="contact-link">
+    <i class="fas fa-envelope"></i> sonvexbeat@proton.me
+</a>
             </div>
             <div class="footer-copy">
     &copy; 2026 <a href="https://www.profitablecpmratenetwork.com/jvctgrkh?key=c70ba03c98c8bdb15274d1228cb6811a" target="_blank" style="color: inherit; text-decoration: none;">SONVEX BEAT</a>. All rights reserved.
@@ -514,6 +514,22 @@
 
 <script async src="https://www.tiktok.com/embed.js" data-locale="en-US"></script>
 
+
+
+<script>
+    document.getElementById('contact-link').addEventListener('click', function(e) {
+        // بنسخ الإيميل في الخلفية عشان لو البرنامج مفتحش يكون معاهم كوبي
+        navigator.clipboard.writeText('sonvexbeat@proton.me').then(() => {
+            console.log('Email copied to clipboard');
+        });
+        
+        // لو الزائر على كمبيوتر ومعندوش برنامج إيميل، الحركة دي بتضمن إنه ميتعطلش
+    });
+</script>
+
+
+
+    
 </body>
 
 </html>
