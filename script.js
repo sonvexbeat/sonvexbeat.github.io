@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return min + ":" + (sec < 10 ? '0' + sec : sec);
     }
 
-    // --- 6. التحكم في مستوى الصوت (للراديو فقط) ---
+    // --- 6. التحكم في مستوى الصوت ---
     if (volumeSlider) {
         volumeSlider.addEventListener('input', (e) => {
             const val = e.target.value;
@@ -169,7 +169,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
-    document.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+        // السطر اللي بيحل مشكلة الـ WAV: لو الدوسة على زرار البرومو، اخرج وم تعملش حاجة في الراديو
+        if (e.target.closest('#play-pause-trigger')) return;
+
         // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
         if (rAudio && !rAudio.src) {
             playRadio();
@@ -195,7 +198,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactBtn = document.getElementById('contact-link');
     if (contactBtn) {
         contactBtn.addEventListener('click', function(e) {
-            // السطر ده هو السر، بيوقف المتصفح ثانية عشان يلحق ينفذ النسخ والرسالة
             e.preventDefault(); 
             
             const email = 'sonvexbeat@proton.me';
@@ -203,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
             navigator.clipboard.writeText(email).then(() => {
                 showToast('Email Copied to Clipboard!');
                 
-                // بعد ثانية واحدة بالظبط، افتح له تطبيق الميل أوتوماتيكياً
                 setTimeout(() => {
                     window.location.href = "mailto:" + email;
                 }, 1000);
@@ -251,6 +252,5 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
-
 
 }); // نهاية الملف
