@@ -195,25 +195,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const contactBtn = document.getElementById('contact-link');
     if (contactBtn) {
         contactBtn.addEventListener('click', function(e) {
+            // السطر ده هو السر، بيوقف المتصفح ثانية عشان يلحق ينفذ النسخ والرسالة
+            e.preventDefault(); 
+            
             const email = 'sonvexbeat@proton.me';
             
-            // تنفيذ عملية النسخ
             navigator.clipboard.writeText(email).then(() => {
                 showToast('Email Copied to Clipboard!');
+                
+                // بعد ثانية واحدة بالظبط، افتح له تطبيق الميل أوتوماتيكياً
+                setTimeout(() => {
+                    window.location.href = "mailto:" + email;
+                }, 1000);
             }).catch(err => {
                 console.error('Failed to copy: ', err);
             });
         });
     }
 
-
-    
-    // دالة إظهار التنبيه بشكل شيك (Toast)
+    // دالة إظهار التنبيه (Toast)
     function showToast(message) {
         const toast = document.createElement('div');
         toast.innerText = message;
         
-        // تنسيق الرسالة برمجياً لضمان ظهورها فوق كل شيء
         Object.assign(toast.style, {
             position: 'fixed',
             bottom: '30px',
@@ -222,29 +226,25 @@ document.addEventListener('DOMContentLoaded', () => {
             color: '#fff',
             padding: '12px 24px',
             borderRadius: '12px',
-            backdropFilter: 'blur(15px)', // تأثير الزجاج اللي ماشي مع ستايل موقعك
+            backdropFilter: 'blur(15px)',
             webkitBackdropFilter: 'blur(15px)',
             border: '1px solid rgba(255, 255, 255, 0.2)',
             boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-            zIndex: '9999',
+            zIndex: '10000',
             fontFamily: 'Montserrat, sans-serif',
             fontSize: '14px',
-            letterSpacing: '1px',
-            transition: 'all 0.5s ease'
+            transition: 'all 0.5s ease',
+            opacity: '0',
+            transform: 'translateY(20px)'
         });
 
         document.body.appendChild(toast);
 
-        // تأثير دخول ناعم (Fade In)
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateY(20px)';
-        
         setTimeout(() => {
             toast.style.opacity = '1';
             toast.style.transform = 'translateY(0)';
         }, 100);
 
-        // اختفاء تلقائي بعد 3 ثوانٍ
         setTimeout(() => {
             toast.style.opacity = '0';
             toast.style.transform = 'translateY(20px)';
@@ -253,14 +253,4 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
-
-
-
-
-
-
-
-
-    
 }); // نهاية الملف
