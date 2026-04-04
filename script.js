@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let shuffledQueue = [];
     let currentTrackIndex = 0;
+    let radioInitialized = false; // متغير لمتابعة حالة تنشيط الراديو
 
     // دالة خلط المصفوفة
     function shuffleArray(array) {
@@ -83,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
-        // إذا كانت القائمة فارغة أو انتهت، قم بخلطها من جديد
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
             shuffledQueue = shuffleArray(radioPlaylist);
             currentTrackIndex = 0;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 5. Pro Player Functionality (المشغل الكبير) ---
+    // --- 5. Pro Player Functionality (المشغل الكبير - Dust Soul) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
     const playIcon = document.getElementById('status-icon');
@@ -118,6 +118,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (playBtn && teaserAudio) {
         playBtn.addEventListener('click', () => {
+            // تنشيط الراديو في الخلفية صامت لو دي أول دوسة
+            if (!radioInitialized) {
+                if (rAudio && !rAudio.src) {
+                    playRadio();
+                    rAudio.pause(); // نجهزه بس نخليه واقف
+                }
+                radioInitialized = true;
+                hideHint();
+            }
+
             if (teaserAudio.paused) {
                 if (rAudio) rAudio.pause(); 
                 teaserAudio.volume = 0.9; 
@@ -168,33 +178,34 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
-    document.addEventListener('click', (e) => {
-        // السطر اللي بيحل مشكلة الـ WAV: لو الدوسة على زرار البرومو، اخرج وم تعملش حاجة في الراديو
-        if (e.target.closest('#play-pause-trigger')) return;
-
-        // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
-        if (rAudio && !rAudio.src) {
-            playRadio();
-        }
-
-        // 2. التأكد إن الراديو واقف والبرومو مش شغال، فنشغله
-        if (rAudio && rAudio.paused && (!teaserAudio || teaserAudio.paused)) {
-            rAudio.play().catch(err => console.log("Playback blocked"));
-        }
-        
-        // إخفاء الجملة التوضيحية بنعومة
+    // وظيفة إخفاء الهنت
+    function hideHint() {
         const hint = document.getElementById('click-hint');
         if(hint) {
             hint.style.transition = 'opacity 0.5s ease';
             hint.style.opacity = '0';
             setTimeout(() => { hint.style.display = 'none'; }, 500);
         }
-    }, { once: true });
+    }
 
+    // تعديل الـ Listener العام عشان يشتغل في كل الحالات
+    document.addEventListener('click', (e) => {
+        if (radioInitialized) return; // لو اتنشط خلاص من زرار البلاي ميعملش حاجة هنا
 
+        // لو الدوسة بره زرار البلاي
+        if (!e.target.closest('#play-pause-trigger')) {
+            if (rAudio && !rAudio.src) {
+                playRadio();
+            }
+            if (rAudio && rAudio.paused && (!teaserAudio || teaserAudio.paused)) {
+                rAudio.play().catch(err => console.log("Playback blocked"));
+            }
+            radioInitialized = true;
+            hideHint();
+        }
+    });
 
-// --- 7. Contact Email Copy Logic ---
+    // --- 7. Contact Email Copy Logic ---
     const contactBtn = document.getElementById('contact-link');
     if (contactBtn) {
         contactBtn.addEventListener('click', function(e) {
@@ -214,7 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // دالة إظهار التنبيه (Toast)
     function showToast(message) {
         const toast = document.createElement('div');
         toast.innerText = message;
@@ -252,5 +262,4 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
-
-}); // نهاية الملف
+});
