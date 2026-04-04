@@ -272,4 +272,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 3000);
     }
 
+    // --- 8. العداد الوهمي للمستمعين ---
+    const liveCounter = document.getElementById('live-counter');
+    if (liveCounter) {
+        let listeners = Math.floor(Math.random() * (290 - 260 + 1)) + 260;
+        liveCounter.innerText = listeners;
+
+        setInterval(() => {
+            const change = Math.floor(Math.random() * 10) - 4;
+            listeners += change;
+            if (listeners < 250) listeners += 2;
+            if (listeners > 325) listeners -= 2;
+            liveCounter.innerText = listeners;
+        }, 3000);
+    }
+
 }); // نهاية الملف
