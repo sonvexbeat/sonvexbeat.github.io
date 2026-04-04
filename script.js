@@ -118,8 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (playBtn && teaserAudio) {
         playBtn.addEventListener('click', (e) => {
-            // منع الـ Event من الوصول للـ Body عشان ميبوظش الراديو
-            e.stopPropagation();
+            // منع وصول الضغطة للـ body نهائياً عشان الراديو مياخدش أمر تشغيل في نفس اللحظة
+            e.stopImmediatePropagation();
 
             if (teaserAudio.paused) {
                 // لو دوسنا بلاي على التيزر.. الراديو يقف اتوماتيك
@@ -127,11 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 teaserAudio.volume = 0.9; 
                 teaserAudio.play();
                 playIcon?.classList.replace('fa-play', 'fa-pause');
+                
+                // إخفاء الهنت لو موجود
+                hideHint();
             } else {
                 // لو دوسنا ستوب على التيزر.. الراديو يشتغل تلقائي
                 teaserAudio.pause();
                 playIcon?.classList.replace('fa-pause', 'fa-play');
-                if (rAudio) rAudio.play().catch(() => {});
+                
+                // الراديو يرجع يشتغل لوحده
+                if (rAudio) {
+                    if (!rAudio.src) playRadio();
+                    else rAudio.play().catch(err => console.log("Radio wait"));
+                }
             }
         });
 
@@ -174,12 +182,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // دالة إخفاء الجملة التوضيحية
+    function hideHint() {
+        const hint = document.getElementById('click-hint');
+        if(hint) {
+            hint.style.transition = 'opacity 0.5s ease';
+            hint.style.opacity = '0';
+            setTimeout(() => { hint.style.display = 'none'; }, 500);
+        }
+    }
+
     // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
     document.addEventListener('click', (e) => {
-        // لو الدوسة على زرار التيزر، اخرج وما تعملش حاجة في الراديو هنا (عشان الكود اللي فوق هو اللي يتحكم)
+        // لو الدوسة على زرار التيزر، اخرج فوراً وسيب الكود الخاص بالـ playBtn هو اللي يتصرف
         if (e.target.closest('#play-pause-trigger')) return;
 
-        // لو التيزر شغال حالياً، متفتحش الراديو عشان ميحصلش تداخل
+        // لو التيزر شغال حالياً، متفتحش الراديو أبداً عشان الصوتين ميتداخلوش
         if (teaserAudio && !teaserAudio.paused) return;
 
         // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
@@ -187,18 +205,12 @@ document.addEventListener('DOMContentLoaded', () => {
             playRadio();
         }
 
-        // 2. التأكد إن الراديو واقف، فنشغله
+        // 2. التأكد إن الراديو واقف والبرومو مش شغال، فنشغله
         if (rAudio && rAudio.paused) {
             rAudio.play().catch(err => console.log("Playback blocked"));
         }
         
-        // إخفاء الجملة التوضيحية بنعومة
-        const hint = document.getElementById('click-hint');
-        if(hint) {
-            hint.style.transition = 'opacity 0.5s ease';
-            hint.style.opacity = '0';
-            setTimeout(() => { hint.style.display = 'none'; }, 500);
-        }
+        hideHint();
     });
 
     // --- 7. Contact Email Copy Logic ---
