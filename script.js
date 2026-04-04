@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let shuffledQueue = [];
     let currentTrackIndex = 0;
-    let radioInitialized = false; // متغير لمتابعة حالة تنشيط الراديو
 
     // دالة خلط المصفوفة
     function shuffleArray(array) {
@@ -84,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
+        // إذا كانت القائمة فارغة أو انتهت، قم بخلطها من جديد
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
             shuffledQueue = shuffleArray(radioPlaylist);
             currentTrackIndex = 0;
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 5. Pro Player Functionality (المشغل الكبير - Dust Soul) ---
+    // --- 5. Pro Player Functionality (المشغل الكبير) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
     const playIcon = document.getElementById('status-icon');
@@ -117,31 +117,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const seekContainer = document.getElementById('seek-bar-container');
 
     if (playBtn && teaserAudio) {
-        playBtn.addEventListener('click', () => {
-            // تنشيط الراديو في الخلفية صامت لو دي أول دوسة
-            if (!radioInitialized) {
-                if (rAudio && !rAudio.src) {
-                    playRadio();
-                    rAudio.pause(); // نجهزه بس نخليه واقف
-                }
-                radioInitialized = true;
-                hideHint();
-            }
+        playBtn.addEventListener('click', (e) => {
+            // منع الـ Event من الوصول للـ Body عشان ميبوظش الراديو
+            e.stopPropagation();
 
             if (teaserAudio.paused) {
+                // لو دوسنا بلاي على التيزر.. الراديو يقف اتوماتيك
                 if (rAudio) rAudio.pause(); 
                 teaserAudio.volume = 0.9; 
                 teaserAudio.play();
                 playIcon?.classList.replace('fa-play', 'fa-pause');
             } else {
+                // لو دوسنا ستوب على التيزر.. الراديو يشتغل تلقائي
                 teaserAudio.pause();
                 playIcon?.classList.replace('fa-pause', 'fa-play');
-                if (rAudio) rAudio.play();
+                if (rAudio) rAudio.play().catch(() => {});
             }
         });
 
         teaserAudio.addEventListener('ended', () => {
             playIcon?.classList.replace('fa-pause', 'fa-play');
+            // الراديو يرجع يشتغل تلقائي لما التيزر يخلص
             if (rAudio) rAudio.play();
         });
 
@@ -178,30 +174,30 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // وظيفة إخفاء الهنت
-    function hideHint() {
+    // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
+    document.addEventListener('click', (e) => {
+        // لو الدوسة على زرار التيزر، اخرج وما تعملش حاجة في الراديو هنا (عشان الكود اللي فوق هو اللي يتحكم)
+        if (e.target.closest('#play-pause-trigger')) return;
+
+        // لو التيزر شغال حالياً، متفتحش الراديو عشان ميحصلش تداخل
+        if (teaserAudio && !teaserAudio.paused) return;
+
+        // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
+        if (rAudio && !rAudio.src) {
+            playRadio();
+        }
+
+        // 2. التأكد إن الراديو واقف، فنشغله
+        if (rAudio && rAudio.paused) {
+            rAudio.play().catch(err => console.log("Playback blocked"));
+        }
+        
+        // إخفاء الجملة التوضيحية بنعومة
         const hint = document.getElementById('click-hint');
         if(hint) {
             hint.style.transition = 'opacity 0.5s ease';
             hint.style.opacity = '0';
             setTimeout(() => { hint.style.display = 'none'; }, 500);
-        }
-    }
-
-    // تعديل الـ Listener العام عشان يشتغل في كل الحالات
-    document.addEventListener('click', (e) => {
-        if (radioInitialized) return; // لو اتنشط خلاص من زرار البلاي ميعملش حاجة هنا
-
-        // لو الدوسة بره زرار البلاي
-        if (!e.target.closest('#play-pause-trigger')) {
-            if (rAudio && !rAudio.src) {
-                playRadio();
-            }
-            if (rAudio && rAudio.paused && (!teaserAudio || teaserAudio.paused)) {
-                rAudio.play().catch(err => console.log("Playback blocked"));
-            }
-            radioInitialized = true;
-            hideHint();
         }
     });
 
@@ -225,6 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // دالة إظهار التنبيه (Toast)
     function showToast(message) {
         const toast = document.createElement('div');
         toast.innerText = message;
@@ -262,4 +259,5 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => toast.remove(), 500);
         }, 3000);
     }
-});
+
+}); // نهاية الملف
