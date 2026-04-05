@@ -94,8 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
         rTitle.innerText = track.title;
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
-        // --- 1. قفل خاصية الوقت (الضبة والمفتاح للكمبيوتر والموبايل) ---
-        // بنوهم المتصفح إن مدة الملف "لانهاية" عشان يقلب لوضع الـ Live ويخفي شريط التحكم الخارجي
+        // 1. قفل خاصية الوقت (خداع المتصفح بـ Infinity)
         try {
             Object.defineProperty(rAudio, 'duration', {
                 get: function() { return Infinity; },
@@ -103,22 +102,32 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         } catch(e) { console.log("Stream Protected"); }
 
-        // --- 2. إعدادات نظام التشغيل وشاشة القفل (MediaSession) ---
+        // 2. إعدادات شاشة القفل (MediaSession)
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
                 artist: 'Sonvex Beat',
                 album: 'Sonvex Live Radio',
-                artwork: [
-                    { 
-                        src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', 
-                        sizes: '512x512', 
-                        type: 'image/png' 
-                    }
-                ]
+                artwork: [{ src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', sizes: '512x512', type: 'image/png' }]
             });
 
-            // تفعيل التشغيل والإيقاف فقط من الخارج
+            // الحل السحري للموبايل: تصفير الحالة تماماً لإخفاء شريط الوقت
+            try {
+                if (navigator.mediaSession.setPositionState) {
+                    navigator.mediaSession.setPositionState(null); 
+                }
+            } catch (e) { console.log("PositionState not supported"); }
+
+            // إجبار المتصفح على وضع الـ Playing وتفعيل أزرار التحكم الأساسية فقط
+            navigator.mediaSession.playbackState = "playing";
+
+            // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
+            const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+            disableActions.forEach(action => {
+                try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
+            });
+
+            // تفعيل التشغيل والإيقاف فقط
             navigator.mediaSession.setActionHandler('play', () => {
                 rAudio.play();
                 navigator.mediaSession.playbackState = "playing";
@@ -127,50 +136,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 rAudio.pause();
                 navigator.mediaSession.playbackState = "paused";
             });
-
-            // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
-            const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
-            disableActions.forEach(action => {
-                try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
-            });
-            
-            navigator.mediaSession.playbackState = "playing";
         }
 
-        rAudio.play().catch(err => console.log("User interaction required for audio"));
-    }
-
-    // --- 3. الحارس الداخلي والتحكم في شكل الشريط (Listeners) ---
-    if (rAudio) {
-        // الانتقال للتراك التالي تلقائياً
-        rAudio.addEventListener('ended', () => {
-            currentTrackIndex++;
-            playRadio();
-        });
-
-      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
-        rAudio.addEventListener('seeking', () => {
-            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
-            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
-            if (rAudio.currentTime > 0) {
-                rAudio.currentTime = 0;
-            }
-        });
-
-        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
-        rAudio.addEventListener('waiting', () => {
-            // لو المتصفح وقف عشان "يقطع" أو يحمل، بنخليه يكمل لعب فوراً
-            rAudio.play();
-        });
-
-       // تحديث شكل الشريط الداخلي في الموقع
-        rAudio.addEventListener('timeupdate', () => {
-            if (rProg) {
-                // الطريقة الصح لضمان الـ 100%
-                rProg.style.setProperty('width', '100%', 'important');
-            }
-        });
-    }
+        rAudio.play().catch(err => console.log("User interaction required"));
+    } // نهاية دالة playRadio المظبوطة
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
