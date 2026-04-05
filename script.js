@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let shuffledQueue = [];
     let currentTrackIndex = 0;
 
-    // دالة خلط المصفوفة
     function shuffleArray(array) {
         let newArr = [...array];
         for (let i = newArr.length - 1; i > 0; i--) {
@@ -80,10 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return newArr;
     }
 
-   function playRadio() {
+    function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
-        // خلط القائمة لو خلصت أو بدأت
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
             shuffledQueue = shuffleArray(radioPlaylist);
             currentTrackIndex = 0;
@@ -94,15 +92,13 @@ document.addEventListener('DOMContentLoaded', () => {
         rTitle.innerText = track.title;
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
-        // 1. قفل خاصية الوقت (خداع المتصفح بـ Infinity)
         try {
             Object.defineProperty(rAudio, 'duration', {
                 get: function() { return Infinity; },
                 configurable: true
             });
-        } catch(e) { console.log("Stream Protected"); }
+        } catch(e) {}
 
-        // 2. إعدادات شاشة القفل (MediaSession)
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
@@ -111,35 +107,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 artwork: [{ src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', sizes: '512x512', type: 'image/png' }]
             });
 
-            // الحل السحري للموبايل: تصفير الحالة تماماً لإخفاء شريط الوقت
             try {
                 if (navigator.mediaSession.setPositionState) {
                     navigator.mediaSession.setPositionState(null); 
                 }
-            } catch (e) { console.log("PositionState not supported"); }
+            } catch (e) {}
 
-            // إجبار المتصفح على وضع الـ Playing وتفعيل أزرار التحكم الأساسية فقط
             navigator.mediaSession.playbackState = "playing";
-
-            // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
             const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
             disableActions.forEach(action => {
                 try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
             });
 
-            // تفعيل التشغيل والإيقاف فقط
-            navigator.mediaSession.setActionHandler('play', () => {
-                rAudio.play();
-                navigator.mediaSession.playbackState = "playing";
-            });
-            navigator.mediaSession.setActionHandler('pause', () => {
-                rAudio.pause();
-                navigator.mediaSession.playbackState = "paused";
-            });
+            navigator.mediaSession.setActionHandler('play', () => rAudio.play());
+            navigator.mediaSession.setActionHandler('pause', () => rAudio.pause());
         }
 
         rAudio.play().catch(err => console.log("User interaction required"));
-    } // نهاية دالة playRadio المظبوطة
+    }
+
+    // --- الجزء الجديد: حارس الراديو لمنع التقديم اليدوي ---
+    if (rAudio) {
+        // لما الأغنية تخلص "طبيعياً" يقلب للي بعدها
+        rAudio.addEventListener('ended', () => {
+            currentTrackIndex++;
+            playRadio();
+        });
+
+        // منع التقديم اليدوي من المتصفح (القفل الحديدي)
+        rAudio.addEventListener('seeking', () => {
+            if (rAudio.currentTime > 0) {
+                rAudio.currentTime = 0; // إرجاع التراك للصفر لو حد حاول يقدم
+            }
+        });
+
+        // حماية من التوقف
+        rAudio.addEventListener('waiting', () => rAudio.play());
+
+        // تثبيت شريط التقدم الوهمي
+        rAudio.addEventListener('timeupdate', () => {
+            if (rProg) rProg.style.width = '100%';
+        });
+    }المظبوطة
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
