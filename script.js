@@ -677,36 +677,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-   // --- 8. العداد الوهمي للمستمعين (حركة متغيرة) ---
+   // --- 8. العداد الوهمي للمستمعين (منطق الوصول للقمة) ---
 const liveCounter = document.getElementById('live-counter');
 if (liveCounter) {
-    let listeners = 52; // البداية اللي طلبتها
+    let listeners = 52; 
     liveCounter.innerText = listeners;
 
     setInterval(() => {
         let change;
         
-        // المنطق الجديد: النقصان ممكن يوصل لـ 7 والزيادة لـ 3
-        // Math.random() * 11 بيطلع أرقام من 0 لـ 10
-        // لما نطرح 7: النتيجة هتكون من -7 (نقصان جامد) لحد +3 (زيادة هادية)
-        change = Math.floor(Math.random() * 11) - 7; 
+        // 1. لو لسه بعيد عن الـ 300 (مرحلة التسخين)
+        if (listeners < 300) {
+            // هنا الزيادة (8) أكتر من النقصان (3) عشان "يحدف" لفوق
+            change = Math.floor(Math.random() * 12) - 3; 
+        } 
+        // 2. لما يوصل للمنطقة الكبيرة (فوق 300)
+        else {
+            // هنا بقى "الخناقة" اللي أنت عاوزها: ينقص 7 ويزيد 3
+            change = Math.floor(Math.random() * 11) - 7; 
+        }
 
         listeners += change;
 
-        // حماية العداد:
-        // 1. لو نزل تحت الـ 50 يرفعه تاني لـ 52 عشان يفضل "أكتيف"
-        if (listeners < 50) {
-            listeners = Math.floor(Math.random() * 5) + 52; 
-        }
-        
-        // 2. لو وصل لمنطقة الـ 350 وعاوز تثبته عندها أو يقل شوية
-        if (listeners > 350) {
-            listeners -= Math.floor(Math.random() * 10) + 5; // ينزل هبدة واحدة لو كبر أوي
-        }
+        // حماية الأطراف:
+        if (listeners < 52) listeners = Math.floor(Math.random() * 5) + 52;
+        if (listeners > 400) listeners -= 10; // سقف العداد عشان ميسرحش
 
         liveCounter.innerText = listeners;
-    }, 4000); // تحديث كل 4 ثواني عشان تلاحظ الفرق
+    }, 3000); // خليتها 3 ثواني عشان يوصل للـ 300 في وقت معقول
 }
-
 
 }); // نهاية الملف
