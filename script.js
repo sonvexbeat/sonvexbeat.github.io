@@ -22,9 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const themeIcon = document.getElementById('theme-icon');
 
-    const toggleText = document.querySelector('.toggle-text');
-
-
+    // التعديل هنا: بنخلي البحث عن النص محصور جوه زرار الثيم فقط (themeBtn)
+    const toggleText = themeBtn ? themeBtn.querySelector('.toggle-text') : null;
 
     const currentTheme = localStorage.getItem('theme') || 'dark';
 
