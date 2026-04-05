@@ -954,5 +954,19 @@ document.querySelectorAll('img').forEach(img => {
 });
 
 
+
+// تحميل سكريبت تيك توك بتأخير 4 ثواني لزيادة سرعة فتح الموقع
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const tiktokScript = document.createElement('script');
+        tiktokScript.src = "https://www.tiktok.com/embed.js";
+        tiktokScript.async = true;
+        document.body.appendChild(tiktokScript);
+        console.log("TikTok Engine Started Silently...");
+    }, 4000); 
+});
+
+
+    
     
 }); // نهاية الملف
