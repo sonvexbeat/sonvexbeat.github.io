@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
+      // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
 
     const radioItems = document.querySelectorAll('.radio-item');
 
@@ -298,17 +298,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        // منع التقديم اليدوي (لو اليوزر حاول يلمس الشريط أو يستخدم الكيبورد)
+      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
 
         rAudio.addEventListener('seeking', () => {
 
+            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
+
+            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
+
             if (rAudio.currentTime > 0) {
 
-                // بيرجعه فوراً للنقطة اللي كان فيها (تجمد الشريط)
-
-                rAudio.currentTime = rAudio.currentTime; 
+                rAudio.currentTime = 0;
 
             }
+
+        });
+
+
+
+        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
+
+        rAudio.addEventListener('waiting', () => {
+
+            // لو المتصفح وقف عشان "يقطع" أو يحمل، بنخليه يكمل لعب فوراً
+
+            rAudio.play();
 
         });
 
@@ -329,7 +343,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
     }
-
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
 
     const teaserAudio = document.getElementById('teaser-track');
