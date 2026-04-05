@@ -264,10 +264,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 rProg.style.setProperty('width', '100%', 'important');
             }
             
-            // --- التعديل الجوهري هنا ---
-            // بنحدث الـ timestamp كل ثانية بناءً على الوقت الحالي ناقص اللي اتسمع
-            // ده بيخلي الـ "واقعية" مستمرة حتى لو قفلت المتصفح 10 دقايق
-            if (rAudio.currentTime > 2) {
+         // التعديل هنا: 
+            // 1. لازم نكون عدينا مرحلة التحميل الأول (isFirstPlay بقت false)
+            // 2. ولازم الأغنية تكون مشيت فعلاً (أكبر من ثانية مثلاً)
+            if (!isFirstPlay && rAudio.currentTime > 1) {
                 localStorage.setItem('sonvex_start_timestamp', Date.now() - (rAudio.currentTime * 1000));
             }
 
