@@ -1,7 +1,6 @@
-
 {
   "name": "SONVEX BEAT Official",
-  "short_name": "SONVEX",
+  "short_name": "SONVEX BEAT",
   "start_url": "index.html",
   "display": "standalone",
   "background_color": "#050a12",
