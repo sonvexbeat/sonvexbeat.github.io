@@ -677,34 +677,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // --- 8. العداد الوهمي للمستمعين ---
+   // --- 8. العداد الوهمي للمستمعين (حركة متغيرة) ---
+const liveCounter = document.getElementById('live-counter');
+if (liveCounter) {
+    let listeners = 52; // البداية اللي طلبتها
+    liveCounter.innerText = listeners;
 
-    const liveCounter = document.getElementById('live-counter');
+    setInterval(() => {
+        let change;
+        
+        // المنطق الجديد: النقصان ممكن يوصل لـ 7 والزيادة لـ 3
+        // Math.random() * 11 بيطلع أرقام من 0 لـ 10
+        // لما نطرح 7: النتيجة هتكون من -7 (نقصان جامد) لحد +3 (زيادة هادية)
+        change = Math.floor(Math.random() * 11) - 7; 
 
-    if (liveCounter) {
+        listeners += change;
 
-        let listeners = Math.floor(Math.random() * (290 - 260 + 1)) + 260;
+        // حماية العداد:
+        // 1. لو نزل تحت الـ 50 يرفعه تاني لـ 52 عشان يفضل "أكتيف"
+        if (listeners < 50) {
+            listeners = Math.floor(Math.random() * 5) + 52; 
+        }
+        
+        // 2. لو وصل لمنطقة الـ 350 وعاوز تثبته عندها أو يقل شوية
+        if (listeners > 350) {
+            listeners -= Math.floor(Math.random() * 10) + 5; // ينزل هبدة واحدة لو كبر أوي
+        }
 
         liveCounter.innerText = listeners;
-
-
-
-        setInterval(() => {
-
-            const change = Math.floor(Math.random() * 10) - 4;
-
-            listeners += change;
-
-            if (listeners < 250) listeners += 2;
-
-            if (listeners > 325) listeners -= 2;
-
-            liveCounter.innerText = listeners;
-
-        }, 3000);
-
-    }
-
+    }, 4000); // تحديث كل 4 ثواني عشان تلاحظ الفرق
+}
 
 
 }); // نهاية الملف
