@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return newArr;
     }
 
-    function playRadio() {
+   function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
         // إذا كانت القائمة فارغة أو انتهت، قم بخلطها من جديد
@@ -98,15 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
-                artist: 'Sonvex',
+                artist: 'Sonvex Beat',
                 album: 'Sonvex Live Radio',
                 artwork: [
                     { src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }
                 ]
             });
 
+            // تفعيل أزرار التشغيل والإيقاف فقط
             navigator.mediaSession.setActionHandler('play', () => rAudio.play());
             navigator.mediaSession.setActionHandler('pause', () => rAudio.pause());
+
+            // تعطيل خاصية التقديم والترجيع (التحكم في الشريط)
+            navigator.mediaSession.setActionHandler('seekbackward', null);
+            navigator.mediaSession.setActionHandler('seekforward', null);
+            navigator.mediaSession.setActionHandler('seekto', null);
+            
+            // إخبار النظام بأن الحالة "بث مباشر" لتقليل التفاعل مع شريط الوقت
+            navigator.mediaSession.playbackState = "playing";
         }
 
         // 1. لازم سطر التشغيل ده عشان الصوت يشتغل فعلياً
