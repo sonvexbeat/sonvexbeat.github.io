@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
    function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
+        // خلط القائمة لو خلصت أو بدأت
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
             shuffledQueue = shuffleArray(radioPlaylist);
             currentTrackIndex = 0;
@@ -93,11 +94,16 @@ document.addEventListener('DOMContentLoaded', () => {
         rTitle.innerText = track.title;
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
-        // خدعة البث المباشر لتعطيل شريط الموبايل
-        rAudio.addEventListener('loadedmetadata', () => {
-            rAudio.duration = Infinity; 
-        }, { once: true });
+        // --- 1. قفل خاصية الوقت (الضبة والمفتاح للكمبيوتر والموبايل) ---
+        // بنوهم المتصفح إن مدة الملف "لانهاية" عشان يقلب لوضع الـ Live ويخفي شريط التحكم الخارجي
+        try {
+            Object.defineProperty(rAudio, 'duration', {
+                get: function() { return Infinity; },
+                configurable: true
+            });
+        } catch(e) { console.log("Stream Protected"); }
 
+        // --- 2. إعدادات نظام التشغيل وشاشة القفل (MediaSession) ---
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
@@ -106,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 artwork: [{ src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }]
             });
 
+            // تفعيل التشغيل والإيقاف فقط من الخارج
             navigator.mediaSession.setActionHandler('play', () => {
                 rAudio.play();
                 navigator.mediaSession.playbackState = "playing";
@@ -115,33 +122,40 @@ document.addEventListener('DOMContentLoaded', () => {
                 navigator.mediaSession.playbackState = "paused";
             });
 
-            navigator.mediaSession.setActionHandler('seekto', null);
-            navigator.mediaSession.setActionHandler('seekbackward', null);
-            navigator.mediaSession.setActionHandler('seekforward', null);
+            // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
+            const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+            disableActions.forEach(action => {
+                try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
+            });
             
             navigator.mediaSession.playbackState = "playing";
         }
 
-        rAudio.play().catch(err => console.log("Waiting for interaction"));
+        rAudio.play().catch(err => console.log("User interaction required for audio"));
     }
 
+    // --- 3. الحارس الداخلي والتحكم في شكل الشريط (Listeners) ---
     if (rAudio) {
+        // الانتقال للتراك التالي تلقائياً
         rAudio.addEventListener('ended', () => {
             currentTrackIndex++;
             playRadio();
         });
 
-        rAudio.addEventListener('timeupdate', () => {
-            // العداد الداخلي للموقع يظل يعمل
-            if (rAudio.duration && rAudio.duration !== Infinity) {
-                const percent = (rAudio.currentTime / rAudio.duration) * 100;
-                if (rProg) rProg.style.width = percent + '%';
+        // منع التقديم اليدوي (لو اليوزر حاول يلمس الشريط أو يستخدم الكيبورد)
+        rAudio.addEventListener('seeking', () => {
+            if (rAudio.currentTime > 0) {
+                // بيرجعه فوراً للنقطة اللي كان فيها (تجمد الشريط)
+                rAudio.currentTime = rAudio.currentTime; 
             }
         });
 
-        rAudio.addEventListener('seeking', () => {
-            if (rAudio.currentTime > 0) {
-                rAudio.currentTime = rAudio.currentTime; 
+        // تحديث شكل الشريط الداخلي في الموقع
+        rAudio.addEventListener('timeupdate', () => {
+            // بما إننا في وضع "راديو لايف"، هنخلي الشريط منور بالكامل (100%) دايماً
+            // ده بيدي إيحاء احترافي إن البث مستمر ملوش نهاية
+            if (rProg) {
+                rProg.style.width = '100%';
             }
         });
     }
