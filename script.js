@@ -239,31 +239,38 @@ document.addEventListener('DOMContentLoaded', () => {
     if (rAudio) {
         // الانتقال للتراك التالي تلقائياً
         rAudio.addEventListener('ended', () => {
-            localStorage.setItem('sonvex_start_timestamp', Date.now()); // (تصفير الوقت للتراك الجديد)
+            localStorage.setItem('sonvex_start_timestamp', Date.now());
             currentTrackIndex++;
             playRadio();
         });
 
-      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
+        // منع التقديم اليدوي (الضبة والمفتاح)
         rAudio.addEventListener('seeking', () => {
-            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
-            if (rAudio.currentTime > 0 && !isFirstPlay) {
-                // (ملحوظة: شلنا التصفير هنا عشان ميتخانقش مع نطة الـ Live في أول ثانية)
+            // لو مش أول نطة (الواقعية)، أي محاولة تقديم هترجعه للصفر
+            if (!isFirstPlay && rAudio.currentTime > 0) {
+                rAudio.currentTime = 0;
             }
         });
 
-        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
+        // إضافة حماية إضافية لمنع التأتأة
         rAudio.addEventListener('waiting', () => {
             rAudio.play();
         });
 
-       // تحديث شكل الشريط الداخلي في الموقع
+        // تحديث شكل الشريط وإخفاء التايمر من نظام التشغيل
         rAudio.addEventListener('timeupdate', () => {
             if (rProg) {
                 rProg.style.setProperty('width', '100%', 'important');
             }
+            
+            // إخفاء الـ Seek Bar من شاشة قفل الموبايل والكمبيوتر
+            if ('mediaSession' in navigator) {
+                navigator.mediaSession.setPositionState(null);
+            }
         });
     }
+
+    
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
 
     const teaserAudio = document.getElementById('teaser-track');
