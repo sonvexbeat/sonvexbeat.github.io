@@ -112,172 +112,497 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-      // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
+       // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
+
+
+
     const radioItems = document.querySelectorAll('.radio-item');
+
+
+
     const radioPlaylist = Array.from(radioItems).map(item => ({
+
+
+
         title: item.getAttribute('data-title'),
+
+
+
         file: item.getAttribute('data-src')
+
+
+
     }));
 
+
+
+
+
+
+
     const rAudio = document.getElementById('radio-audio-player');
+
+
+
     const rTitle = document.getElementById('radio-track-title');
+
+
+
     const rProg = document.getElementById('radio-progress');
+
+
+
     const volumeSlider = document.getElementById('volume-slider');
 
+
+
+
+
+
+
     let shuffledQueue = [];
+
+
+
     let currentTrackIndex = 0;
-    let isFirstPlay = true; // (إضافة: مفتاح أول تشغيل)
+
+
+
+    let isFirstPlay = true;
+
+
+
+
 
     // دالة خلط المصفوفة
+
+
+
     function shuffleArray(array) {
+
+
+
         let newArr = [...array];
+
+
+
         for (let i = newArr.length - 1; i > 0; i--) {
+
+
+
             const j = Math.floor(Math.random() * (i + 1));
+
+
+
             [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+
+
+
         }
+
+
+
         return newArr;
+
+
+
     }
+
+
+
+
+
+
 
    function playRadio() {
+
+
+
         if (!rAudio || radioPlaylist.length === 0) return;
 
-        // (إضافة: جلب بيانات الوقت الحقيقي للواقعية)
-        const savedTrackFile = localStorage.getItem('sonvex_last_file');
-        const savedStartTime = parseInt(localStorage.getItem('sonvex_start_timestamp')) || 0;
-        const now = Date.now();
+
+
+
+
+
 
         // خلط القائمة لو خلصت أو بدأت
+
+
+
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
+
+
+
             shuffledQueue = shuffleArray(radioPlaylist);
+
+
+
             currentTrackIndex = 0;
+
+
+
         }
 
-        // (إضافة: لو ريفريش يرجع لنفس التراك)
-        if (isFirstPlay && savedTrackFile) {
-            const foundIndex = shuffledQueue.findIndex(t => t.file === savedTrackFile);
-            if (foundIndex !== -1) currentTrackIndex = foundIndex;
-        }
+
+
+
+
+
 
         const track = shuffledQueue[currentTrackIndex];
+
+
+
         rAudio.src = track.file;
+
+
+
         rTitle.innerText = track.title;
+
+
+
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
+
+
+
+
+
+
         // --- إضافة حركة الـ Live (أول تراك بس) ---
-        rAudio.onloadedmetadata = function() {
-            if (isFirstPlay) {
-                const duration = rAudio.duration;
-                const elapsed = (now - savedStartTime) / 1000;
 
-                if (savedStartTime > 0 && elapsed < duration && savedTrackFile === track.file) {
-                    // واقعية: الأغنية سبقت المستمع بمقدار وقت الغياب
-                    rAudio.currentTime = elapsed;
-                } else {
-                    // دخول جديد: نطة عشوائية
-                    if (duration && isFinite(duration) && duration > 20) {
-                        rAudio.currentTime = Math.floor(Math.random() * (duration - 15)) + 5;
-                    }
-                    localStorage.setItem('sonvex_start_timestamp', Date.now() - (rAudio.currentTime * 1000));
-                }
-                isFirstPlay = false;
+    rAudio.onloadedmetadata = function() {
+
+        if (isFirstPlay) {
+
+            const duration = rAudio.duration;
+
+            // لو التراك أطول من 20 ثانية، بننط لحتة عشوائية
+
+            if (duration && isFinite(duration) && duration > 20) {
+
+                rAudio.currentTime = Math.floor(Math.random() * (duration - 15)) + 5;
+
             }
-        };
 
-        // (إضافة: حفظ بيانات التراك الحالي)
-        localStorage.setItem('sonvex_last_file', track.file);
-        if (!localStorage.getItem('sonvex_start_timestamp') || rAudio.currentTime < 2) {
-            localStorage.setItem('sonvex_start_timestamp', Date.now());
+            isFirstPlay = false; // اقفل المفتاح عشان اللي بعد كدة يبدأ طبيعي
+
         }
+
+    };
+
+
+
+
+
+
 
         // --- 1. قفل خاصية الوقت (الضبة والمفتاح للكمبيوتر والموبايل) ---
+
+
+
         // بنوهم المتصفح إن مدة الملف "لانهاية" عشان يقلب لوضع الـ Live ويخفي شريط التحكم الخارجي
+
+
+
         try {
+
+
+
             Object.defineProperty(rAudio, 'duration', {
+
+
+
                 get: function() { return Infinity; },
+
+
+
                 configurable: true
+
+
+
             });
+
+
+
         } catch(e) { console.log("Stream Protected"); }
 
+
+
+
+
+
+
         // --- 2. إعدادات نظام التشغيل وشاشة القفل (MediaSession) ---
+
+
+
         if ('mediaSession' in navigator) {
+
+
+
             navigator.mediaSession.metadata = new MediaMetadata({
+
+
+
                 title: track.title,
+
+
+
                 artist: 'Sonvex Beat',
+
+
+
                 album: 'Sonvex Live Radio',
+
+
+
                 artwork: [
+
+
+
                     { 
+
+
+
                         src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', 
+
+
+
                         sizes: '512x512', 
+
+
+
                         type: 'image/png' 
+
+
+
                     }
+
+
+
                 ]
+
+
+
             });
+
+
+
+
+
+
 
             // تفعيل التشغيل والإيقاف فقط من الخارج
+
+
+
             navigator.mediaSession.setActionHandler('play', () => {
+
+
+
                 rAudio.play();
+
+
+
                 navigator.mediaSession.playbackState = "playing";
+
+
+
             });
+
+
+
             navigator.mediaSession.setActionHandler('pause', () => {
+
+
+
                 rAudio.pause();
+
+
+
                 navigator.mediaSession.playbackState = "paused";
+
+
+
             });
+
+
+
+
+
+
 
             // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
+
+
+
             const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+
+
+
             disableActions.forEach(action => {
+
+
+
                 try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
+
+
+
             });
+
+
+
             
+
+
+
             navigator.mediaSession.playbackState = "playing";
+
+
+
         }
 
+
+
+
+
+
+
         rAudio.play().catch(err => console.log("User interaction required for audio"));
+
+
+
     }
 
+
+
+
+
+
+
     // --- 3. الحارس الداخلي والتحكم في شكل الشريط (Listeners) ---
+
+
+
     if (rAudio) {
+
+
+
         // الانتقال للتراك التالي تلقائياً
+
+
+
         rAudio.addEventListener('ended', () => {
-            localStorage.setItem('sonvex_start_timestamp', Date.now());
+
+
+
             currentTrackIndex++;
+
+
+
             playRadio();
+
+
+
         });
 
-        // منع التقديم اليدوي (مع السماح لنطة الواقعية في البداية)
+
+
+
+
+
+
+      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
+
+
+
         rAudio.addEventListener('seeking', () => {
-            // التعديل هنا: بنضيف شرط إن الأغنية تكون بدأت فعلاً (أكبر من ثانية مثلاً)
-            // عشان ميتخانقش مع كود الواقعية اللي بيشتغل في أول لحظة
-            if (!isFirstPlay && rAudio.currentTime > 1) { 
-                rAudio.currentTime = 0; 
+
+
+
+            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
+
+
+
+            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
+
+
+
+            if (rAudio.currentTime > 0) {
+
+
+
+                rAudio.currentTime = 0;
+
+
+
             }
+
+
+
         });
 
-        // إضافة حماية إضافية لمنع التأتأة
+
+
+
+
+
+
+        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
+
+
+
         rAudio.addEventListener('waiting', () => {
+
+
+
+            // لو المتصفح وقف عشان "يقطع" أو يحمل، بنخليه يكمل لعب فوراً
+
+
+
             rAudio.play();
+
+
+
         });
 
-        // تحديث شكل الشريط وإخفاء التايمر وحفظ الوقت الحقيقي
+
+
+
+
+
+
+       // تحديث شكل الشريط الداخلي في الموقع
+
+
+
         rAudio.addEventListener('timeupdate', () => {
+
+
+
             if (rProg) {
+
+
+
+                // الطريقة الصح لضمان الـ 100%
+
+
+
                 rProg.style.setProperty('width', '100%', 'important');
-            }
-            
-         // التعديل هنا: 
-            // 1. لازم نكون عدينا مرحلة التحميل الأول (isFirstPlay بقت false)
-            // 2. ولازم الأغنية تكون مشيت فعلاً (أكبر من ثانية مثلاً)
-            if (!isFirstPlay && rAudio.currentTime > 1) {
-                localStorage.setItem('sonvex_start_timestamp', Date.now() - (rAudio.currentTime * 1000));
+
+
+
             }
 
-            if ('mediaSession' in navigator) {
-                navigator.mediaSession.setPositionState(null);
-            }
+
+
         });
-        
-         } // إغلاق if (rAudio)
 
+
+
+    }
         
 
     
