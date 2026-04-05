@@ -918,4 +918,34 @@ if (liveCounter) {
     }, 3000); 
 }
 
+// --- Sonvex App Installation Engine ---
+let deferredPrompt;
+const installBtn = document.getElementById('install-btn');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+    // بيمنع المتصفح من إظهار شريط التثبيت التلقائي الرخم
+    e.preventDefault();
+    deferredPrompt = e;
+    // بيظهر زرار الـ App الشيك بتاعنا
+    installBtn.style.display = 'inline-flex';
+});
+
+installBtn.addEventListener('click', async () => {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('Sonvex App Installed!');
+            installBtn.style.display = 'none';
+        }
+        deferredPrompt = null;
+    }
+});
+
+// بيخفي الزرار لو الموقع متثبت فعلاً على الموبايل
+window.addEventListener('appinstalled', () => {
+    installBtn.style.display = 'none';
+});
+
+    
 }); // نهاية الملف
