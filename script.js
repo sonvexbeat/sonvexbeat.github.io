@@ -55,100 +55,236 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
+     // --- 4. Sonvex Radio Logic (True Shuffle Mode) ---
+
     const radioItems = document.querySelectorAll('.radio-item');
+
     const radioPlaylist = Array.from(radioItems).map(item => ({
+
         title: item.getAttribute('data-title'),
+
         file: item.getAttribute('data-src')
+
     }));
 
+
+
     const rAudio = document.getElementById('radio-audio-player');
+
     const rTitle = document.getElementById('radio-track-title');
+
     const rProg = document.getElementById('radio-progress');
+
     const volumeSlider = document.getElementById('volume-slider');
 
+
+
     let shuffledQueue = [];
+
     let currentTrackIndex = 0;
 
+
+
+    // دالة خلط المصفوفة
+
     function shuffleArray(array) {
+
         let newArr = [...array];
+
         for (let i = newArr.length - 1; i > 0; i--) {
+
             const j = Math.floor(Math.random() * (i + 1));
+
             [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+
         }
+
         return newArr;
+
     }
 
-    function playRadio() {
+
+
+   function playRadio() {
+
         if (!rAudio || radioPlaylist.length === 0) return;
 
+
+
+        // خلط القائمة لو خلصت أو بدأت
+
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
+
             shuffledQueue = shuffleArray(radioPlaylist);
+
             currentTrackIndex = 0;
+
         }
+
+
 
         const track = shuffledQueue[currentTrackIndex];
+
         rAudio.src = track.file;
+
         rTitle.innerText = track.title;
+
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
+
+
+        // --- 1. قفل خاصية الوقت (الضبة والمفتاح للكمبيوتر والموبايل) ---
+
+        // بنوهم المتصفح إن مدة الملف "لانهاية" عشان يقلب لوضع الـ Live ويخفي شريط التحكم الخارجي
+
         try {
+
             Object.defineProperty(rAudio, 'duration', {
+
                 get: function() { return Infinity; },
+
                 configurable: true
+
             });
-        } catch(e) {}
+
+        } catch(e) { console.log("Stream Protected"); }
+
+
+
+        // --- 2. إعدادات نظام التشغيل وشاشة القفل (MediaSession) ---
 
         if ('mediaSession' in navigator) {
+
             navigator.mediaSession.metadata = new MediaMetadata({
+
                 title: track.title,
+
                 artist: 'Sonvex Beat',
+
                 album: 'Sonvex Live Radio',
-                artwork: [{ src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', sizes: '512x512', type: 'image/png' }]
+
+                artwork: [
+
+                    { 
+
+                        src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', 
+
+                        sizes: '512x512', 
+
+                        type: 'image/png' 
+
+                    }
+
+                ]
+
             });
 
-            try {
-                if (navigator.mediaSession.setPositionState) {
-                    navigator.mediaSession.setPositionState(null); 
-                }
-            } catch (e) {}
+
+
+            // تفعيل التشغيل والإيقاف فقط من الخارج
+
+            navigator.mediaSession.setActionHandler('play', () => {
+
+                rAudio.play();
+
+                navigator.mediaSession.playbackState = "playing";
+
+            });
+
+            navigator.mediaSession.setActionHandler('pause', () => {
+
+                rAudio.pause();
+
+                navigator.mediaSession.playbackState = "paused";
+
+            });
+
+
+
+            // تعطيل كافة أزرار التقديم، الترجيع، والتخطي (قفل تام)
+
+            const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
+
+            disableActions.forEach(action => {
+
+                try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
+
+            });
+
+            
 
             navigator.mediaSession.playbackState = "playing";
-            const disableActions = ['seekto', 'seekbackward', 'seekforward', 'previoustrack', 'nexttrack'];
-            disableActions.forEach(action => {
-                try { navigator.mediaSession.setActionHandler(action, null); } catch(e) {}
-            });
 
-            navigator.mediaSession.setActionHandler('play', () => rAudio.play());
-            navigator.mediaSession.setActionHandler('pause', () => rAudio.pause());
         }
 
-        rAudio.play().catch(err => console.log("User interaction required"));
+
+
+        rAudio.play().catch(err => console.log("User interaction required for audio"));
+
     }
 
-    // --- الجزء الجديد: حارس الراديو لمنع التقديم اليدوي ---
+
+
+    // --- 3. الحارس الداخلي والتحكم في شكل الشريط (Listeners) ---
+
     if (rAudio) {
-        // لما الأغنية تخلص "طبيعياً" يقلب للي بعدها
+
+        // الانتقال للتراك التالي تلقائياً
+
         rAudio.addEventListener('ended', () => {
+
             currentTrackIndex++;
+
             playRadio();
+
         });
 
-        // منع التقديم اليدوي من المتصفح (القفل الحديدي)
+
+
+      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
+
         rAudio.addEventListener('seeking', () => {
+
+            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
+
+            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
+
             if (rAudio.currentTime > 0) {
-                rAudio.currentTime = 0; // إرجاع التراك للصفر لو حد حاول يقدم
+
+                rAudio.currentTime = 0;
+
             }
+
         });
 
-        // حماية من التوقف
-        rAudio.addEventListener('waiting', () => rAudio.play());
 
-        // تثبيت شريط التقدم الوهمي
+
+        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
+
+        rAudio.addEventListener('waiting', () => {
+
+            // لو المتصفح وقف عشان "يقطع" أو يحمل، بنخليه يكمل لعب فوراً
+
+            rAudio.play();
+
+        });
+
+
+
+       // تحديث شكل الشريط الداخلي في الموقع
+
         rAudio.addEventListener('timeupdate', () => {
-            if (rProg) rProg.style.width = '100%';
+
+            if (rProg) {
+
+                // الطريقة الصح لضمان الـ 100%
+
+                rProg.style.setProperty('width', '100%', 'important');
+
+            }
+
         });
-    }المظبوطة
+
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
