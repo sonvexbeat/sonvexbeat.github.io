@@ -270,62 +270,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        // --- إضافة حركة الـ Live (أول تراك بس) ---
-
-    rAudio.onloadedmetadata = function() {
-
-        if (isFirstPlay) {
-
-            const duration = rAudio.duration;
-
-            // لو التراك أطول من 20 ثانية، بننط لحتة عشوائية
-
-            if (duration && isFinite(duration) && duration > 20) {
-
-                rAudio.currentTime = Math.floor(Math.random() * (duration - 15)) + 5;
-
+       // --- النطة بتحصل هنا لأول مرة بس ---
+        rAudio.onloadedmetadata = function() {
+            if (isFirstPlay) {
+                const duration = rAudio.duration;
+                // النطة العشوائية لأول مستمع (بين 20 لـ 40 ثانية كما طلبت)
+                if (duration && isFinite(duration) && duration > 45) {
+                    rAudio.currentTime = Math.floor(Math.random() * 21) + 20; 
+                }
+                isFirstPlay = false; // خلاص كدة مهمة أول مرة خلصت
             }
-
-            isFirstPlay = false; // اقفل المفتاح عشان اللي بعد كدة يبدأ طبيعي
-
-        }
-
-    };
-
-
-
-
-
-
-
-        // --- 1. قفل خاصية الوقت (الضبة والمفتاح للكمبيوتر والموبايل) ---
-
-
-
-        // بنوهم المتصفح إن مدة الملف "لانهاية" عشان يقلب لوضع الـ Live ويخفي شريط التحكم الخارجي
-
-
+        };
 
         try {
-
-
-
             Object.defineProperty(rAudio, 'duration', {
-
-
-
                 get: function() { return Infinity; },
-
-
-
                 configurable: true
-
-
-
             });
-
-
-
         } catch(e) { console.log("Stream Protected"); }
 
 
@@ -518,31 +479,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        rAudio.addEventListener('seeking', () => {
-
-
-
-            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
-
-
-
-            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
-
-
-
-            if (rAudio.currentTime > 0) {
-
-
-
-                rAudio.currentTime = 0;
-
-
-
-            }
-
-
-
-        });
+       rAudio.addEventListener('seeking', () => {
+    // القفل يشتغل بس لو النطة الأولى خلصت (يعني isFirstPlay بقت false)
+    if (!isFirstPlay && rAudio.currentTime > 0) {
+        rAudio.currentTime = 0;
+    }
+});
 
 
 
