@@ -269,16 +269,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-       // --- النطة بتحصل هنا لأول مرة بس ---
-        rAudio.onloadedmetadata = function() {
+// --- النطة الاحترافية (تعديل لضمان التنفيذ) ---
+        rAudio.oncanplay = function() {
             if (isFirstPlay) {
                 const duration = rAudio.duration;
-                // النطة العشوائية لأول مستمع (بين 20 لـ 40 ثانية كما طلبت)
+                // نطة أول مرة (بين 20 لـ 40 ثانية)
                 if (duration && isFinite(duration) && duration > 45) {
-                    rAudio.currentTime = Math.floor(Math.random() * 21) + 20; 
+                    const jumpTo = Math.floor(Math.random() * 21) + 20;
+                    rAudio.currentTime = jumpTo;
+                    console.log("First Play Jump to: " + jumpTo); // عشان تتأكد في الـ Console
                 }
-                isFirstPlay = false; // خلاص كدة مهمة أول مرة خلصت
+                isFirstPlay = false; 
+                // مهم جداً: امسح الحدث بعد ما يتنفذ أول مرة عشان ميكررش النطة
+                rAudio.oncanplay = null; 
             }
         };
 
