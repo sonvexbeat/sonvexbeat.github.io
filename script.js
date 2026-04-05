@@ -269,19 +269,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// --- النطة الاحترافية (تعديل لضمان التنفيذ) ---
-        rAudio.oncanplay = function() {
+// --- النطة الانتحارية (لضمان التنفيذ غصب عن المتصفح) ---
+        rAudio.onplay = function() {
             if (isFirstPlay) {
-                const duration = rAudio.duration;
-                // نطة أول مرة (بين 20 لـ 40 ثانية)
-                if (duration && isFinite(duration) && duration > 45) {
-                    const jumpTo = Math.floor(Math.random() * 21) + 20;
+                let attempts = 0;
+                const jumpTo = Math.floor(Math.random() * 21) + 20;
+
+                // بنعمل Timer بيحاول يثبت الوقت 5 مرات ورا بعض
+                const forceJump = setInterval(() => {
                     rAudio.currentTime = jumpTo;
-                    console.log("First Play Jump to: " + jumpTo); // عشان تتأكد في الـ Console
-                }
-                isFirstPlay = false; 
-                // مهم جداً: امسح الحدث بعد ما يتنفذ أول مرة عشان ميكررش النطة
-                rAudio.oncanplay = null; 
+                    attempts++;
+                    
+                    // لو النطة ثبتت أو حاولنا 5 مرات.. بنوقف
+                    if (Math.abs(rAudio.currentTime - jumpTo) < 1 || attempts > 5) {
+                        clearInterval(forceJump);
+                        isFirstPlay = false;
+                        rAudio.onplay = null; // نظف الحدث
+                    }
+                }, 200); 
             }
         };
 
