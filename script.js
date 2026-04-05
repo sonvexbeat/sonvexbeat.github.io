@@ -258,18 +258,27 @@ document.addEventListener('DOMContentLoaded', () => {
             rAudio.play();
         });
 
-        // تحديث شكل الشريط وإخفاء التايمر من نظام التشغيل
+        // تحديث شكل الشريط وإخفاء التايمر وحفظ الوقت الحقيقي
         rAudio.addEventListener('timeupdate', () => {
             if (rProg) {
                 rProg.style.setProperty('width', '100%', 'important');
             }
             
-            // إخفاء الـ Seek Bar من شاشة قفل الموبايل والكمبيوتر
+            // --- التعديل الجوهري هنا ---
+            // بنحدث الـ timestamp كل ثانية بناءً على الوقت الحالي ناقص اللي اتسمع
+            // ده بيخلي الـ "واقعية" مستمرة حتى لو قفلت المتصفح 10 دقايق
+            if (rAudio.currentTime > 2) {
+                localStorage.setItem('sonvex_start_timestamp', Date.now() - (rAudio.currentTime * 1000));
+            }
+
             if ('mediaSession' in navigator) {
                 navigator.mediaSession.setPositionState(null);
             }
         });
-    }
+        
+         } // إغلاق if (rAudio)
+
+        
 
     
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
