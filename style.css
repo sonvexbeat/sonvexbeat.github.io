@@ -417,7 +417,7 @@ body.light-mode .social-icon:hover {
 .player-cover-art {
     width: 160px;
     height: 160px;
-    background: #121212 url('cover.jpg') center/cover no-repeat; /* السطر ده بس اللي يتغير */
+    background: #121212 url('cover.jpg') center/cover no-repeat; 
     border-radius: 12px;
     margin-bottom: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -427,7 +427,7 @@ body.light-mode .social-icon:hover {
     font-size: 1.4rem; 
     font-weight: 700; 
     margin-bottom: 5px; 
-    color: var(--text-primary); /* ده السطر اللي هيخليه يقلب مع المود */
+    color: var(--text-primary); 
 }
 .track-artist-display { font-size: 0.9rem; color: #7148fc; margin-bottom: 30px; font-weight: 600; }
 
@@ -435,7 +435,7 @@ body.light-mode .social-icon:hover {
     width: 100%;
     max-width: 350px;
     height: 4px;
-    background: rgba(120, 120, 120, 0.2); /* لون رمادي هادي يبان في المودين */
+    background: rgba(120, 120, 120, 0.2); 
     border-radius: 2px;
     cursor: pointer;
     position: relative;
@@ -444,9 +444,35 @@ body.light-mode .social-icon:hover {
 .progress-bar-fill {
     width: 0%;
     height: 100%;
-    background: var(--accent); /* اللبني (Cyan) وهو شغال */
+    background: var(--accent); 
     border-radius: 2px;
-    box-shadow: 0 0 10px var(--accent); /* إضاءة خفيفة للشريط وهو ماشي */
+    box-shadow: 0 0 10px var(--accent); 
+}
+
+/* --- تعديل شريط الراديو اللايف (Sonvex Live Pulse) --- */
+#radio-progress {
+    width: 100% !important; /* إجبار الشريط على الملء الكامل */
+    height: 100%;
+    background: var(--accent); /* يتبع لون المود (Cyan في الدارك، أزرق في اللايت) */
+    box-shadow: 0 0 15px var(--accent), 0 0 5px #ffffff;
+    border-radius: 20px;
+    transition: opacity 0.5s ease;
+    animation: pulse-live 2s infinite ease-in-out;
+}
+
+@keyframes pulse-live {
+    0% { 
+        opacity: 0.5; 
+        box-shadow: 0 0 10px var(--accent);
+    }
+    50% { 
+        opacity: 1; 
+        box-shadow: 0 0 20px var(--accent), 0 0 10px #ffffff;
+    }
+    100% { 
+        opacity: 0.5; 
+        box-shadow: 0 0 10px var(--accent);
+    }
 }
 
 .time-meta {
@@ -455,7 +481,7 @@ body.light-mode .social-icon:hover {
     display: flex;
     justify-content: space-between;
     font-size: 10px;
-    color: var(--text-secondary); /* هيقلب لونه حسب المود عشان يبان */
+    color: var(--text-secondary); 
     margin: 8px 0 30px;
     font-family: monospace;
 }
@@ -478,13 +504,13 @@ body.light-mode .social-icon:hover {
 
 /* --- عداد المستمعين (Sonvex Live Counter) --- */
 .listeners-count {
-    user-select: none; /* منع تحديد النص */
+    user-select: none; 
 }
 
 #pulsating-dot {
     width: 7px;
     height: 7px;
-    background-color: #2ecc71; /* لون أخضر حي */
+    background-color: #2ecc71; 
     border-radius: 50%;
     box-shadow: 0 0 8px #2ecc71;
     animation: live-pulse 1.5s infinite;
@@ -497,10 +523,7 @@ body.light-mode .social-icon:hover {
 }
 
 #live-counter {
-    min-width: 35px; /* الحفاظ على مساحة الرقم عشان الكلام ميتحركش */
+    min-width: 35px; 
     text-align: center;
     display: inline-block;
 }
-
-
-
