@@ -16,57 +16,41 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    // 2. Theme Toggle Logic
-
+ // 2. Theme Toggle Logic
     const themeBtn = document.getElementById('theme-toggle');
-
     const themeIcon = document.getElementById('theme-icon');
 
-    // التعديل هنا: بنخلي البحث عن النص محصور جوه زرار الثيم فقط (themeBtn)
-    const toggleText = themeBtn ? themeBtn.querySelector('.toggle-text') : null;
+    // التعديل هنا: غيرنا toggle-text لـ mode-label عشان يطابق الـ HTML بتاعك
+    const toggleText = themeBtn ? themeBtn.querySelector('.mode-label') : null;
 
     const currentTheme = localStorage.getItem('theme') || 'dark';
 
     if (currentTheme === 'light') {
-
         document.body.classList.add('light-mode');
-
         document.body.classList.remove('dark-mode');
-
         if (themeIcon) themeIcon.textContent = '🌙';
-
         if (toggleText) toggleText.textContent = 'Dark Mode';
-
+    } else {
+        // بنأكد إن الدارك مود هو الأساس لو مفيش اختيار قديم
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+        if (themeIcon) themeIcon.textContent = '☀️';
+        if (toggleText) toggleText.textContent = 'Light Mode';
     }
 
-
-
     themeBtn?.addEventListener('click', () => {
-
         document.body.classList.toggle('light-mode');
-
         document.body.classList.toggle('dark-mode');
 
-
-
         if (document.body.classList.contains('light-mode')) {
-
             localStorage.setItem('theme', 'light');
-
             if (themeIcon) themeIcon.textContent = '🌙';
-
             if (toggleText) toggleText.textContent = 'Dark Mode';
-
         } else {
-
             localStorage.setItem('theme', 'dark');
-
             if (themeIcon) themeIcon.textContent = '☀️';
-
             if (toggleText) toggleText.textContent = 'Light Mode';
-
         }
-
     });
 
 
