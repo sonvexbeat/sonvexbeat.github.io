@@ -1,0 +1,16 @@
+{
+  "name": "SONVEX BEAT Official",
+  "short_name": "SONVEX",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050a12",
+  "theme_color": "#050a12",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
