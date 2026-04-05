@@ -677,7 +677,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-   // --- 8. العداد الوهمي للمستمعين (منطق الوصول للقمة) ---
+   // --- 8. العداد الوهمي للمستمعين (ترتيب إنجليزي سليم) ---
 const liveCounter = document.getElementById('live-counter');
 if (liveCounter) {
     let listeners = 52; 
@@ -686,25 +686,23 @@ if (liveCounter) {
     setInterval(() => {
         let change;
         
-        // 1. لو لسه بعيد عن الـ 300 (مرحلة التسخين)
+        // مود الصعود (تحت الـ 300): الزيادة (8) أكبر من النقصان (3)
         if (listeners < 300) {
-            // هنا الزيادة (8) أكتر من النقصان (3) عشان "يحدف" لفوق
             change = Math.floor(Math.random() * 12) - 3; 
         } 
-        // 2. لما يوصل للمنطقة الكبيرة (فوق 300)
+        // مود الثبات (فوق الـ 300): النقصان (7) أكبر من الزيادة (3)
         else {
-            // هنا بقى "الخناقة" اللي أنت عاوزها: ينقص 7 ويزيد 3
             change = Math.floor(Math.random() * 11) - 7; 
         }
 
         listeners += change;
 
-        // حماية الأطراف:
+        // حماية البداية والنهاية
         if (listeners < 52) listeners = Math.floor(Math.random() * 5) + 52;
-        if (listeners > 400) listeners -= 10; // سقف العداد عشان ميسرحش
+        if (listeners > 420) listeners -= 10; 
 
         liveCounter.innerText = listeners;
-    }, 3000); // خليتها 3 ثواني عشان يوصل للـ 300 في وقت معقول
+    }, 3000); 
 }
 
 }); // نهاية الملف
