@@ -31,14 +31,22 @@ body.light-mode {
     box-sizing: border-box;
 }
 
+/* القفل النهائي لمنع الحركة اليمين والشمال (Horizontal Shake) */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+    position: relative;
+    width: 100%;
+    touch-action: pan-y; /* بيسمح بالسكول فوق وتحت بس ويمنع الهزة يمين وشمال */
+}
+
 body {
     font-family: 'Montserrat', 'Inter', sans-serif;
     background-color: var(--bg-color);
     color: var(--text-primary);
     transition: var(--transition);
-    overflow-x: hidden;
-    position: relative;
     scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
 }
 
 /* Custom Premium Scrollbar */
@@ -68,7 +76,7 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
+    width: 100%; /* تعديل لضمان عدم تجاوز حدود الشاشة */
     height: 100vh;
     z-index: -1;
     overflow: hidden;
@@ -135,6 +143,7 @@ header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 .glass-btn:hover {
@@ -161,6 +170,7 @@ main {
 .site-logo {
     transition: opacity 0.4s ease, transform 0.4s ease;
     max-width: 320px;
+    width: 100%;
     height: auto;
 }
 
@@ -294,7 +304,7 @@ body.light-mode .glass-card:hover {
 }
 
 .embed-card {
-    padding: 0; /* Removing padding to fit iframe completely */
+    padding: 0; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -305,6 +315,7 @@ body.light-mode .glass-card:hover {
 .embed-card iframe {
     display: block;
     border-radius: 16px;
+    max-width: 100%;
 }
 
 .sc-container iframe {
@@ -315,6 +326,7 @@ body.light-mode .glass-card:hover {
 .youtube-container {
     aspect-ratio: 16 / 9;
     overflow: hidden;
+    width: 100%;
 }
 
 .youtube-container iframe {
@@ -393,30 +405,44 @@ body.light-mode .social-icon:hover {
     font-family: 'Inter', sans-serif;
 }
 
-/* Responsive */
+/* Responsive التعديلات اللي هتقتل الهزة */
 @media (max-width: 768px) {
-    .hero-title { font-size: 2.5rem; }
-    .platform-links { gap: 1rem; }
+    header {
+        padding: 0.8rem 1rem;
+    }
+    .logo-text { font-size: 1.1rem; }
+    .hero-title { font-size: 2.2rem; letter-spacing: 2px; }
+    .platform-links { gap: 0.8rem; }
     .platform-btn {
         width: calc(50% - 0.5rem);
         min-width: unset;
+        padding: 0.8rem 0.5rem;
+        font-size: 0.85rem;
     }
     .track-grid {
         grid-template-columns: 1fr;
     }
+    main {
+        padding: 0 1rem;
+    }
+    .glass-card {
+        max-width: 100%;
+    }
 }
+
 /* Sonvex Pro Player Styles */
 .upcoming-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px !important;
+    padding: 30px 15px !important;
     text-align: center;
+    width: 100%;
 }
 
 .player-cover-art {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 140px;
     background: #121212 url('cover.jpg') center/cover no-repeat; 
     border-radius: 12px;
     margin-bottom: 25px;
@@ -424,12 +450,12 @@ body.light-mode .social-icon:hover {
 }
 
 .track-name-display { 
-    font-size: 1.4rem; 
+    font-size: 1.3rem; 
     font-weight: 700; 
     margin-bottom: 5px; 
     color: var(--text-primary); 
 }
-.track-artist-display { font-size: 0.9rem; color: #7148fc; margin-bottom: 30px; font-weight: 600; }
+.track-artist-display { font-size: 0.85rem; color: #7148fc; margin-bottom: 30px; font-weight: 600; }
 
 .progress-box {
     width: 100%;
@@ -451,9 +477,9 @@ body.light-mode .social-icon:hover {
 
 /* --- تعديل شريط الراديو اللايف (Sonvex Live Pulse) --- */
 #radio-progress {
-    width: 100% !important; /* إجبار الشريط على الملء الكامل */
+    width: 100% !important; 
     height: 100%;
-    background: var(--accent); /* يتبع لون المود (Cyan في الدارك، أزرق في اللايت) */
+    background: var(--accent); 
     box-shadow: 0 0 15px var(--accent), 0 0 5px #ffffff;
     border-radius: 20px;
     transition: opacity 0.5s ease;
