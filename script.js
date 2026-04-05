@@ -242,25 +242,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
+   // تشغيل الراديو مع أول ضغطة في أي مكان وإخفاء الجملة
     document.addEventListener('click', (e) => {
-        // لو الدوسة على زرار التيزر، اخرج فوراً وسيب الكود الخاص بالـ playBtn هو اللي يتصرف
+        // 1. لو الدوسة على زرار التيزر (المشغل الكبير)، اخرج فوراً
         if (e.target.closest('#play-pause-trigger')) return;
 
-        // لو التيزر شغال حالياً، متفتحش الراديو أبداً عشان الصوتين ميتداخلوش
+        // 2. لو التيزر شغال حالياً، ممنوع الراديو يفتح عشان ميبقاش فيه صوتين
         if (teaserAudio && !teaserAudio.paused) return;
 
-        // 1. لو الراديو لسه ملوش مصدر صوت، شغله فوراً بنظام الشفل
-        if (rAudio && !rAudio.src) {
-            playRadio();
-        }
+        if (rAudio) {
+            // 3. لو الراديو لسه ملوش مصدر صوت (أول مرة)، شغله بالشفل
+            if (!rAudio.src || rAudio.src === "") {
+                playRadio();
+                hideHint();
+                return;
+            }
 
-        // 2. التأكد إن الراديو واقف والبرومو مش شغال، فنشغله
-        if (rAudio && rAudio.paused) {
-            rAudio.play().catch(err => console.log("Playback blocked"));
+            // 4. الحل الأكيد لمنع التأتأة (Check for Buffering/ReadyState)
+            // readyState < 2 معناها إن الملف لسه بيحمل أو مفيش بيانات كافية
+            if (rAudio.paused && rAudio.readyState >= 2) {
+                rAudio.play().catch(err => console.log("Playback wait..."));
+                hideHint();
+            }
         }
-        
-        hideHint();
     });
 
     // --- 7. Contact Email Copy Logic ---
