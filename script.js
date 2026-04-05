@@ -83,7 +83,6 @@ document.addEventListener('DOMContentLoaded', () => {
    function playRadio() {
         if (!rAudio || radioPlaylist.length === 0) return;
 
-        // إذا كانت القائمة فارغة أو انتهت، قم بخلطها من جديد
         if (shuffledQueue.length === 0 || currentTrackIndex >= shuffledQueue.length) {
             shuffledQueue = shuffleArray(radioPlaylist);
             currentTrackIndex = 0;
@@ -94,35 +93,38 @@ document.addEventListener('DOMContentLoaded', () => {
         rTitle.innerText = track.title;
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
 
-        // --- تحديث بيانات الموبايل وشاشة القفل ---
+        // خدعة البث المباشر لتعطيل شريط الموبايل
+        rAudio.addEventListener('loadedmetadata', () => {
+            rAudio.duration = Infinity; 
+        }, { once: true });
+
         if ('mediaSession' in navigator) {
             navigator.mediaSession.metadata = new MediaMetadata({
                 title: track.title,
                 artist: 'Sonvex Beat',
                 album: 'Sonvex Live Radio',
-                artwork: [
-                    { src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }
-                ]
+                artwork: [{ src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }]
             });
 
-            // تفعيل أزرار التشغيل والإيقاف فقط
-            navigator.mediaSession.setActionHandler('play', () => rAudio.play());
-            navigator.mediaSession.setActionHandler('pause', () => rAudio.pause());
+            navigator.mediaSession.setActionHandler('play', () => {
+                rAudio.play();
+                navigator.mediaSession.playbackState = "playing";
+            });
+            navigator.mediaSession.setActionHandler('pause', () => {
+                rAudio.pause();
+                navigator.mediaSession.playbackState = "paused";
+            });
 
-            // تعطيل خاصية التقديم والترجيع (التحكم في الشريط)
+            navigator.mediaSession.setActionHandler('seekto', null);
             navigator.mediaSession.setActionHandler('seekbackward', null);
             navigator.mediaSession.setActionHandler('seekforward', null);
-            navigator.mediaSession.setActionHandler('seekto', null);
             
-            // إخبار النظام بأن الحالة "بث مباشر" لتقليل التفاعل مع شريط الوقت
             navigator.mediaSession.playbackState = "playing";
         }
 
-        // 1. لازم سطر التشغيل ده عشان الصوت يشتغل فعلياً
-        rAudio.play().catch(err => console.log("Playback blocked by browser"));
-    } // <--- 2. القوس ده "إجباري" عشان يقفل الدالة هنا ويحرر الكود اللي بعدها
+        rAudio.play().catch(err => console.log("Waiting for interaction"));
+    }
 
-    // كود الـ Listeners ده بيبقى بره الدالة (زي ما هو مكتوب دلوقت)
     if (rAudio) {
         rAudio.addEventListener('ended', () => {
             currentTrackIndex++;
@@ -130,11 +132,19 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         rAudio.addEventListener('timeupdate', () => {
-            const percent = (rAudio.currentTime / rAudio.duration) * 100;
-            if (rProg) rProg.style.width = percent + '%';
+            // العداد الداخلي للموقع يظل يعمل
+            if (rAudio.duration && rAudio.duration !== Infinity) {
+                const percent = (rAudio.currentTime / rAudio.duration) * 100;
+                if (rProg) rProg.style.width = percent + '%';
+            }
+        });
+
+        rAudio.addEventListener('seeking', () => {
+            if (rAudio.currentTime > 0) {
+                rAudio.currentTime = rAudio.currentTime; 
+            }
         });
     }
-
     // --- 5. Pro Player Functionality (المشغل الكبير) ---
     const teaserAudio = document.getElementById('teaser-track');
     const playBtn = document.getElementById('play-pause-trigger');
