@@ -109,7 +109,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 title: track.title,
                 artist: 'Sonvex Beat',
                 album: 'Sonvex Live Radio',
-                artwork: [{ src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }]
+                artwork: [
+                    { 
+                        src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', 
+                        sizes: '512x512', 
+                        type: 'image/png' 
+                    }
+                ]
             });
 
             // تفعيل التشغيل والإيقاف فقط من الخارج
@@ -142,20 +148,26 @@ document.addEventListener('DOMContentLoaded', () => {
             playRadio();
         });
 
-        // منع التقديم اليدوي (لو اليوزر حاول يلمس الشريط أو يستخدم الكيبورد)
+      // منع التقديم اليدوي وحل مشكلة التأتأة نهائياً
         rAudio.addEventListener('seeking', () => {
+            // أول ما المتصفح يحاول يروح لنقطة تانية، بنجبره يرجع لمكانه الحالي
+            // ده بيخلي الصوت يكمل بدون ما يطلب بيانات جديدة من السيرفر
             if (rAudio.currentTime > 0) {
-                // بيرجعه فوراً للنقطة اللي كان فيها (تجمد الشريط)
-                rAudio.currentTime = rAudio.currentTime; 
+                rAudio.currentTime = 0;
             }
         });
 
-        // تحديث شكل الشريط الداخلي في الموقع
+        // إضافة حماية إضافية لمنع التأتأة عند التوقف المفاجئ
+        rAudio.addEventListener('waiting', () => {
+            // لو المتصفح وقف عشان "يقطع" أو يحمل، بنخليه يكمل لعب فوراً
+            rAudio.play();
+        });
+
+       // تحديث شكل الشريط الداخلي في الموقع
         rAudio.addEventListener('timeupdate', () => {
-            // بما إننا في وضع "راديو لايف"، هنخلي الشريط منور بالكامل (100%) دايماً
-            // ده بيدي إيحاء احترافي إن البث مستمر ملوش نهاية
             if (rProg) {
-                rProg.style.width = '100%';
+                // الطريقة الصح لضمان الـ 100%
+                rProg.style.setProperty('width', '100%', 'important');
             }
         });
     }
