@@ -93,10 +93,27 @@ document.addEventListener('DOMContentLoaded', () => {
         rAudio.src = track.file;
         rTitle.innerText = track.title;
         rAudio.volume = volumeSlider ? volumeSlider.value : 0.5;
-        
-        rAudio.play().catch(err => console.log("Playback blocked by browser"));
-    }
 
+        // --- تحديث بيانات الموبايل وشاشة القفل ---
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: track.title,
+                artist: 'Sonvex',
+                album: 'Sonvex Live Radio',
+                artwork: [
+                    { src: 'logo-dark.png', sizes: '512x512', type: 'image/png' }
+                ]
+            });
+
+            navigator.mediaSession.setActionHandler('play', () => rAudio.play());
+            navigator.mediaSession.setActionHandler('pause', () => rAudio.pause());
+        }
+
+        // 1. لازم سطر التشغيل ده عشان الصوت يشتغل فعلياً
+        rAudio.play().catch(err => console.log("Playback blocked by browser"));
+    } // <--- 2. القوس ده "إجباري" عشان يقفل الدالة هنا ويحرر الكود اللي بعدها
+
+    // كود الـ Listeners ده بيبقى بره الدالة (زي ما هو مكتوب دلوقت)
     if (rAudio) {
         rAudio.addEventListener('ended', () => {
             currentTrackIndex++;
