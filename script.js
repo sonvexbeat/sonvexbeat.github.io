@@ -15,33 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // 1. PWA Install Logic (حطه هنا في الأول خالص)
-let deferredPrompt;
-const installBtn = document.getElementById('install-btn');
-
-window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault(); // بيوقف رسالة جوجل التلقائية
-    deferredPrompt = e;
-    
-    if (installBtn) {
-        installBtn.style.opacity = '1'; 
-        installBtn.style.cursor = 'pointer';
-    }
-});
-
-installBtn?.addEventListener('click', async () => {
-    if (deferredPrompt) {
-        deferredPrompt.prompt(); 
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-    } else {
-        // لو المستخدم داس والموقع لسه بيحمل، مش هيطلع رسالة جوجل الغلط
-        console.log('Installation is preparing...');
-    }
-});
-
-
-    
 
  // 2. Theme Toggle Logic
     const themeBtn = document.getElementById('theme-toggle');
@@ -969,6 +942,17 @@ window.addEventListener('appinstalled', () => {
     console.log('Sonvex App Installed Successfully!');
     installBtn.style.display = 'inline-flex'; // بيفضل ظاهر "محشور" مكانه
 });
+    
+// كود سحري لتسريع الموقع بدون حذف أي محتوى
+document.querySelectorAll('iframe').forEach(iframe => {
+    iframe.setAttribute('loading', 'lazy'); // هيحمل الفيديو لما تنزل له بس
+});
+
+document.querySelectorAll('img').forEach(img => {
+    img.setAttribute('loading', 'lazy'); // هيحمل الصور بالطلب
+    img.setAttribute('decoding', 'async'); // مش هيعطل ظهور الكلام
+});
+
 
     
 }); // نهاية الملف
