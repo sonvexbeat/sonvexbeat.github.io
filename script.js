@@ -918,33 +918,39 @@ if (liveCounter) {
     }, 3000); 
 }
 
-// --- Sonvex App Installation Engine ---
+// --- Sonvex PWA Control Engine (Manual Override) ---
 let deferredPrompt;
 const installBtn = document.getElementById('install-btn');
 
+// إظهار الزرار فوراً وبشكل دائم زي ما طلبت
+installBtn.style.display = 'inline-flex';
+
+// 1. منع إشعار جوجل التلقائي عشان أنت اللي تتحكم
 window.addEventListener('beforeinstallprompt', (e) => {
-    // بيمنع المتصفح من إظهار شريط التثبيت التلقائي الرخم
-    e.preventDefault();
+    e.preventDefault(); // السطر ده بيوقف "هري" جوجل وإشعاراتها التلقائية
     deferredPrompt = e;
-    // بيظهر زرار الـ App الشيك بتاعنا
-    installBtn.style.display = 'inline-flex';
+    console.log('PWA is ready, waiting for Sonvex click...');
 });
 
+// 2. تشغيل التثبيت لما المستخدم يدوس على زرارك أنت
 installBtn.addEventListener('click', async () => {
     if (deferredPrompt) {
+        // لو الموبايل لقط الملفات، هيفتح نافذة التثبيت بطلبك أنت
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-            console.log('Sonvex App Installed!');
-            installBtn.style.display = 'none';
-        }
-        deferredPrompt = null;
+        console.log(`User response: ${outcome}`);
+        
+        // مش هنصفر الـ prompt هنا عشان الزرار يفضل شغال لو حب يثبته تاني
+    } else {
+        // لو المتصفح لسه ملقطش الـ PWA (بسبب الكاش)
+        alert("خاصية التطبيق جاهزة! لو مظهرتش نافذة التثبيت فوراً، جرب تقفل المتصفح وتفتحه تاني.");
     }
 });
 
-// بيخفي الزرار لو الموقع متثبت فعلاً على الموبايل
+// 3. التأكيد إن الزرار مش هيختفي أبداً حتى بعد التثبيت
 window.addEventListener('appinstalled', () => {
-    installBtn.style.display = 'none';
+    console.log('Sonvex App Installed Successfully!');
+    installBtn.style.display = 'inline-flex'; // بيفضل ظاهر "محشور" مكانه
 });
 
     
