@@ -918,6 +918,13 @@ if (liveCounter) {
     }, 3000); 
 }
 
+
+// 1. تسجيل المحرك (Service Worker) - السطرين دول هما "الموتور"
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+}
+
+    
 // --- Sonvex PWA Control Engine (Manual Override) ---
 let deferredPrompt;
 const installBtn = document.getElementById('install-btn');
