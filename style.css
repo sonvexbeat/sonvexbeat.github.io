@@ -344,6 +344,12 @@ body.light-mode .glass-card:hover {
     height: 100%;
 }
 
+
+/* Spotify Player Fix */
+.spotify-container {
+    min-height: 352px;
+}
+
 /* Footer */
 footer {
     background: var(--glass-bg);
