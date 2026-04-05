@@ -244,11 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
             playRadio();
         });
 
-        // منع التقديم اليدوي (الضبة والمفتاح)
+        // منع التقديم اليدوي (مع السماح لنطة الواقعية في البداية)
         rAudio.addEventListener('seeking', () => {
-            // لو مش أول نطة (الواقعية)، أي محاولة تقديم هترجعه للصفر
-            if (!isFirstPlay && rAudio.currentTime > 0) {
-                rAudio.currentTime = 0;
+            // التعديل هنا: بنضيف شرط إن الأغنية تكون بدأت فعلاً (أكبر من ثانية مثلاً)
+            // عشان ميتخانقش مع كود الواقعية اللي بيشتغل في أول لحظة
+            if (!isFirstPlay && rAudio.currentTime > 1) { 
+                rAudio.currentTime = 0; 
             }
         });
 
