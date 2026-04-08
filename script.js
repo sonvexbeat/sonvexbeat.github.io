@@ -643,8 +643,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         });
 
-    }
-
 
 
     function formatTime(time) {
