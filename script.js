@@ -586,10 +586,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 teaserAudio.pause();
                 playIcon?.classList.replace('fa-pause', 'fa-play');
 
+                // تصفير بيانات التيزر عشان الراديو يحط بياناته الجديدة
+                if (rTitle) rTitle.innerText = "Switching to Radio...";
+                if ('mediaSession' in navigator) {
+                    navigator.mediaSession.metadata = null;
+                }
+
                 // الراديو يرجع يشتغل لوحده
                 if (rAudio) {
-                    if (!rAudio.src) playRadio();
-                    else rAudio.play().catch(err => console.log("Radio wait"));
+                    if (!rAudio.src) {
+                        playRadio();
+                    } else {
+                        // تحديث عنوان تراك الراديو الحالي قبل الـ Play
+                        if (rTitle && shuffledQueue[currentTrackIndex]) {
+                            rTitle.innerText = shuffledQueue[currentTrackIndex].title;
+                        }
+                        rAudio.play().catch(err => console.log("Radio wait"));
+                    }
                 }
             }
 
@@ -599,14 +612,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
 
-        teaserAudio.addEventListener('ended', () => {
-
+       teaserAudio.addEventListener('ended', () => {
             playIcon?.classList.replace('fa-pause', 'fa-play');
 
             // الراديو يرجع يشتغل تلقائي لما التيزر يخلص
-
-            if (rAudio) rAudio.play();
-
+            if (rAudio) {
+                // تحديث الاسم هنا برضه عشان ميعلقش لما التيزر يخلص لوحده
+                if (rTitle && shuffledQueue[currentTrackIndex]) {
+                    rTitle.innerText = shuffledQueue[currentTrackIndex].title;
+                }
+                rAudio.play();
+            }
         });
 
 
