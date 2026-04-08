@@ -555,58 +555,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (playBtn && teaserAudio) {
         playBtn.addEventListener('click', (e) => {
-            // منع وصول الضغطة للـ body نهائياً
             e.stopImmediatePropagation();
 
+            // سطر الإنقاذ: تجهيز مصفوفة الراديو فوراً لو لسه فاضية
+            if (shuffledQueue.length === 0) {
+                shuffledQueue = shuffleArray(radioPlaylist);
+            }
+
             if (teaserAudio.paused) {
-                // 1. وقف الراديو لو كان شغال
+                // 1. وقف الراديو فوراً
                 if (rAudio) rAudio.pause(); 
 
-                // 2. تحديث شاشة القفل فوراً (عشان نهرب من Loading)
+                // 2. تحديث شاشة القفل ببيانات التيزر (Upcoming) حصراً
                 if ('mediaSession' in navigator) {
-                    const trackName = document.querySelector('.track-name-display')?.innerText || 'Upcoming Track';
+                    // سحب الاسم من الموقع أو وضع اسم افتراضي
+                    const trackName = document.querySelector('.track-name-display')?.innerText || 'Upcoming Exclusive';
                     const artistName = document.querySelector('.track-artist-display')?.innerText || 'Prod. SB';
 
                     navigator.mediaSession.metadata = new MediaMetadata({
                         title: trackName,
                         artist: artistName,
-                        album: 'Upcoming Exclusive'
+                        album: 'Exclusive Preview',
+                        artwork: [{ src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', sizes: '512x512', type: 'image/png' }]
                     });
                     
                     navigator.mediaSession.playbackState = "playing";
                 }
 
-                // 3. تشغيل الصوت
+                // 3. تشغيل صوت التيزر
                 teaserAudio.volume = 0.9; 
-                teaserAudio.play();
+                teaserAudio.play().catch(err => console.log("Teaser play error"));
                 playIcon?.classList.replace('fa-play', 'fa-pause');
 
             } else {
-                // 4. لو دوسنا ستوب على التيزر.. الراديو يرجع يشتغل تلقائي
+                // 4. إيقاف التيزر والعودة للراديو
                 teaserAudio.pause();
                 playIcon?.classList.replace('fa-pause', 'fa-play');
 
-                // تصفير بيانات التيزر عشان الراديو يحط بياناته الجديدة
-                if (rTitle) rTitle.innerText = "Switching to Radio...";
-                if ('mediaSession' in navigator) {
-                    navigator.mediaSession.metadata = null;
-                }
-
-                // الراديو يرجع يشتغل لوحده
+                // مسح بيانات التيزر استعداداً لبيانات الراديو
                 if (rAudio) {
-                    if (!rAudio.src) {
-                        playRadio();
-                    } else {
-                        // تحديث عنوان تراك الراديو الحالي قبل الـ Play
-                        if (rTitle && shuffledQueue[currentTrackIndex]) {
-                            rTitle.innerText = shuffledQueue[currentTrackIndex].title;
+                    const currentTrack = shuffledQueue[currentTrackIndex];
+                    
+                    if (currentTrack) {
+                        // تحديث العنوان في الموقع
+                        if (rTitle) rTitle.innerText = currentTrack.title;
+
+                        // تحديث شاشة الموبايل ببيانات الراديو فوراً
+                        if ('mediaSession' in navigator) {
+                            navigator.mediaSession.metadata = new MediaMetadata({
+                                title: currentTrack.title,
+                                artist: 'Sonvex Beat',
+                                album: 'Sonvex Radio',
+                                artwork: [{ src: 'https://i.ibb.co/xVgJjLJ/SB-Logo-PNG.png', sizes: '512x512', type: 'image/png' }]
+                            });
                         }
-                        rAudio.play().catch(err => console.log("Radio wait"));
                     }
+
+                    if (!rAudio.src) playRadio();
+                    else rAudio.play().catch(err => console.log("Radio wait"));
                 }
             }
-
-            // إخفاء الهنت في كل الحالات
             hideHint();
         });
     }
