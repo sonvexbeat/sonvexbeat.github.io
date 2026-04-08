@@ -553,19 +553,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    if (playBtn && teaserAudio) {
+  if (playBtn && teaserAudio) {
         playBtn.addEventListener('click', (e) => {
             // منع وصول الضغطة للـ body نهائياً
             e.stopImmediatePropagation();
 
             if (teaserAudio.paused) {
-                // لو دوسنا بلاي على التيزر.. الراديو يقف اتوماتيك
+                // 1. وقف الراديو لو كان شغال
                 if (rAudio) rAudio.pause(); 
-                teaserAudio.volume = 0.9; 
-                teaserAudio.play();
-                playIcon?.classList.replace('fa-play', 'fa-pause');
 
-                // --- تحديث النص فقط في شاشة القفل ---
+                // 2. تحديث شاشة القفل فوراً (عشان نهرب من Loading)
                 if ('mediaSession' in navigator) {
                     const trackName = document.querySelector('.track-name-display')?.innerText || 'Upcoming Track';
                     const artistName = document.querySelector('.track-artist-display')?.innerText || 'Prod. SB';
@@ -575,12 +572,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         artist: artistName,
                         album: 'Upcoming Exclusive'
                     });
+                    
+                    navigator.mediaSession.playbackState = "playing";
                 }
 
-                // إخفاء الهنت لو موجود
-                hideHint();
+                // 3. تشغيل الصوت
+                teaserAudio.volume = 0.9; 
+                teaserAudio.play();
+                playIcon?.classList.replace('fa-play', 'fa-pause');
+
             } else {
-                // لو دوسنا ستوب على التيزر.. الراديو يشتغل تلقائي
+                // 4. لو دوسنا ستوب على التيزر.. الراديو يرجع يشتغل تلقائي
                 teaserAudio.pause();
                 playIcon?.classList.replace('fa-pause', 'fa-play');
 
@@ -590,7 +592,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     else rAudio.play().catch(err => console.log("Radio wait"));
                 }
             }
+
+            // إخفاء الهنت في كل الحالات
+            hideHint();
         });
+    }
     
 
         teaserAudio.addEventListener('ended', () => {
@@ -654,20 +660,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
-    // --- 6. التحكم في مستوى الصوت ---
-
-    if (volumeSlider) {
-
+// --- 6. التحكم في مستوى الصوت ---
+    if (volumeSlider) { // لازم القوس المفتوح ده يكون موجود
         volumeSlider.addEventListener('input', (e) => {
-
             const val = e.target.value;
-
             if (rAudio) rAudio.volume = val;
-
         });
-
-    }
+    } //
 
 
 
