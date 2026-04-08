@@ -554,58 +554,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     if (playBtn && teaserAudio) {
-
         playBtn.addEventListener('click', (e) => {
-
-            // منع وصول الضغطة للـ body نهائياً عشان الراديو مياخدش أمر تشغيل في نفس اللحظة
-
+            // منع وصول الضغطة للـ body نهائياً
             e.stopImmediatePropagation();
 
-
-
             if (teaserAudio.paused) {
-
                 // لو دوسنا بلاي على التيزر.. الراديو يقف اتوماتيك
-
                 if (rAudio) rAudio.pause(); 
-
                 teaserAudio.volume = 0.9; 
-
                 teaserAudio.play();
-
                 playIcon?.classList.replace('fa-play', 'fa-pause');
 
-                
+                // --- تحديث النص فقط في شاشة القفل ---
+                if ('mediaSession' in navigator) {
+                    const trackName = document.querySelector('.track-name-display')?.innerText || 'Upcoming Track';
+                    const artistName = document.querySelector('.track-artist-display')?.innerText || 'Prod. SB';
 
-                // إخفاء الهنت لو موجود
-
-                hideHint();
-
-            } else {
-
-                // لو دوسنا ستوب على التيزر.. الراديو يشتغل تلقائي
-
-                teaserAudio.pause();
-
-                playIcon?.classList.replace('fa-pause', 'fa-play');
-
-                
-
-                // الراديو يرجع يشتغل لوحده
-
-                if (rAudio) {
-
-                    if (!rAudio.src) playRadio();
-
-                    else rAudio.play().catch(err => console.log("Radio wait"));
-
+                    navigator.mediaSession.metadata = new MediaMetadata({
+                        title: trackName,
+                        artist: artistName,
+                        album: 'Upcoming Exclusive'
+                    });
                 }
 
+                // إخفاء الهنت لو موجود
+                hideHint();
+            } else {
+                // لو دوسنا ستوب على التيزر.. الراديو يشتغل تلقائي
+                teaserAudio.pause();
+                playIcon?.classList.replace('fa-pause', 'fa-play');
+
+                // الراديو يرجع يشتغل لوحده
+                if (rAudio) {
+                    if (!rAudio.src) playRadio();
+                    else rAudio.play().catch(err => console.log("Radio wait"));
+                }
             }
-
         });
-
-
+    
 
         teaserAudio.addEventListener('ended', () => {
 
@@ -954,19 +940,4 @@ document.querySelectorAll('img').forEach(img => {
 });
 
 
-
-// تحميل سكريبت تيك توك بتأخير 4 ثواني لزيادة سرعة فتح الموقع
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        const tiktokScript = document.createElement('script');
-        tiktokScript.src = "https://www.tiktok.com/embed.js";
-        tiktokScript.async = true;
-        document.body.appendChild(tiktokScript);
-        console.log("TikTok Engine Started Silently...");
-    }, 4000); 
-});
-
-
-    
-    
 }); // نهاية الملف
