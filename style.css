@@ -462,7 +462,7 @@ body.light-mode .social-icon:hover {
 .player-cover-art {
     width: 140px;
     height: 140px;
-    background: #121212 url('cover.jpg') center/cover no-repeat; 
+    background: #121212 url('cover.webp') center/cover no-repeat; 
     border-radius: 12px;
     margin-bottom: 25px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
