@@ -1,8 +1,6 @@
-self.addEventListener('install', (e) => {
-  console.log('Sonvex Service Worker Installed');
-});
-
-self.addEventListener('fetch', (e) => {
-  // ده بيخلي التطبيق يفتح حتى لو النت ضعيف
-  e.respondWith(fetch(e.request));
-});
+self.options = {
+    "domain": "3nbf4.com",
+    "zoneId": 10830022
+}
+self.lary = ""
+importScripts('https://3nbf4.com/act/files/service-worker.min.js?r=sw')
