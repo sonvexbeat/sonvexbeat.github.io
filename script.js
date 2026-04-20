@@ -1,17 +1,38 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+
+
+
+// ==========================================
+    // 0. كود تنظيف أجهزة المستخدمين من الإعلانات القديمة
+    // ==========================================
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            for(let registration of registrations) {
+                // لو السيرفس وركر مش هو اللي إنت مسميه sw.js (يعني بتاع الإعلانات القديم)
+                // أو حتى لو عاوز تمسح الكل وتبدأ على نظافة:
+                registration.unregister().then(function(boolean) {
+                    if(boolean) console.log('Old Adware Service Worker Cleared!');
+                });
+            }
+        });
+    }
+    // مسح أي كاش قديم ممكن يكون شايل روابط الإعلانات
+    if ('caches' in window) {
+        caches.keys().then(function(names) {
+            for (let name of names) caches.delete(name);
+        });
+    }
+
+
+
+    
     // 1. Initialize AOS (Animate On Scroll)
-
     AOS.init({
-
         duration: 800,
-
         easing: 'ease-out-cubic',
-
         once: true,
-
         offset: 50
-
     });
 
 
